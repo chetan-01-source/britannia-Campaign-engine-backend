@@ -1,0 +1,734 @@
+{
+  "timestamp": "2025-12-03T20:45:10.697Z",
+  "totalProducts": 36,
+  "products": [
+    {
+      "name": "Cheese",
+      "description": "Soft and creamy, Britannia Cheese Slices are made with the goodness of milk and a unique taste. Delicious, nutritious and naturally rich in protein! Add a burst of cheesy flavour to your favourite snack, indulge in this delicious, melt in your mouth experience.",
+      "category": "Cheese",
+      "productUrl": "https://www.britannia.co.in/product/dairy-cheese",
+      "slug": "dairy-cheese",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBri_Cheese_Slices_200g_3a28116e01.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fdairy_cheese_brand_range_8c294baf04.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBri_Cheese_Slices_200g_3a28116e01.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FCheese_Cubes_200g_e307b8e17b.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FCheese_Blocks_200g_42546fd41f.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FCheezza_200g_290c65c514.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F8_Bri_Cheese_Slices_200g_AW_08_01_2025_FOP_e2ce4ae7e6.png&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:41:10.228Z"
+    },
+    {
+      "name": "Good Day",
+      "description": "Indulge in the tropical freshness of Good Day Chunkies Coconut, loaded with luscious coconut flakes. These large chunky cookies offer the perfect harmony of crunch and coconutty goodness in every single bite. Chunkies Coconut is here to elevate your snack time with its burst of coconutty delight. Taken a chunky bite, yet?",
+      "category": "Good Day",
+      "productUrl": "https://www.britannia.co.in/product/good-day",
+      "slug": "good-day",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FChunkies_384x164_3x_size_3c9a0aeabe.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FChunkies_384x164_3x_size_3c9a0aeabe.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGood_Day_Fruit_and_Nut_ca6f943c41.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGood_Day_Cashew_180a081781.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGood_Day_Butter_Jeera_0044b85a14.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGood_Day_Coconut_Chunkies_Style_d58eff4781.png&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:41:21.647Z"
+    },
+    {
+      "name": "Winkin' Cow",
+      "description": "Goodness of Milk paired with classic vanilla flavour, Britannia Winkin’ Cow Vanillicious Thick Shake is  tasty. This refreshing vanilla thick shake is your go-to summer delight. It’s your yummy start to the day and a delicious mid-day recharge. Bring home the magic, enjoy every thickalicious sip of this sweet treat.",
+      "category": "Winkin' Cow",
+      "productUrl": "https://www.britannia.co.in/product/winkin-cow",
+      "slug": "winkin-cow",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FWinkin_Cow_Winkin_Shake_Vanilla_Pack_New_97142558b5.jpg&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FWinkin_Cow_Winkin_Shake_Vanilla_Pack_New_97142558b5.jpg&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FWinkin_Cow_Winkin_Shake_Strawberry_Pack_new_86a255fcda.jpg&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FWinkin_Cow_Winkin_Shake_Choco_Pack_new_f91647dd08.jpg&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FWinkin_Cow_Winkin_Lassi_Mango_Pack_020e4dca99.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FWinkin_Cow_Winkin_Shake_Vanilla_new_86637a4672.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FWinkin_Cow_Winkin_Shake_Vanilla_new_86637a4672.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:41:28.800Z"
+    },
+    {
+      "name": "Marie Gold",
+      "description": "With a light and crispy bite, this iconic snack is enriched with vitamins and minerals, has zero transfat. The gold standard when it comes to taste in every bite. It is your ideal tea time partner. Britannia Marie Gold – your fuel for the day – helps you power through your action-packed day.",
+      "category": "Marie Gold",
+      "productUrl": "https://www.britannia.co.in/product/marie",
+      "slug": "marie",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMarie_Marie_Gold_Pack_63a738e5fc.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMarie_BRS_1_73b5c5af55.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMarie_Marie_Gold_Pack_63a738e5fc.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMarie_Vita_Marie_Gold_Pack_c4d421de26.jpg&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMarie_Gold_ba9a053ec6.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:41:33.862Z"
+    },
+    {
+      "name": "Come Alive Paneer",
+      "description": "Delicious, Britannia Come Alive Paneer is made with the goodness of milk and this food is rich in protein by its nature! Paratha, Indian curry, rolls or a Chinese twist – get natural protein with this soft and tasty paneer.",
+      "category": "Come Alive Paneer",
+      "productUrl": "https://www.britannia.co.in/product/paneer",
+      "slug": "paneer",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPaneer_7284ecd6b4.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPaneer_BRS_1_d2e53d704c.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPaneer_7284ecd6b4.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPaneer_Variant_114a7b8441.png&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPaneer_7284ecd6b4.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fveg_06eff21df5.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FM_Britannia_Milk_1b56b6299f.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:41:38.920Z"
+    },
+    {
+      "name": "Nutrichoice",
+      "description": "Britannia NutriChoice Digestive Biscuits are high fibre biscuits packed with the richness of wheat flour (atta) and bran. Baked to precision, this digestive biscuit is your go-to snack.",
+      "category": "Nutrichoice",
+      "productUrl": "https://www.britannia.co.in/product/nutrichoice",
+      "slug": "nutrichoice",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNutri_Choice_Digestive_4567fbc6a1.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNutri_Choice_Digestive_4567fbc6a1.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNutri_Choice_Herbs_Pack_7b56ac3aeb.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNutri_Choice_Zero_558f174502.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNutri_Choice_Seeds_8190db5b9d.png&w=384&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:41:50.152Z"
+    },
+    {
+      "name": "Come Alive Dahi",
+      "description": "Britannia Come Alive Dahi combines the goodness of probiotics with the great experience of a thick dahi which makes your meals tasty. Straight from our hearts to yours! Add this fresh dahi to your regular diet - eat it plain with sugar or salt, mix it in your raita or drink it as buttermilk or lassi! Britannia Come Alive Thick Dahi - straight from our hearts to yours!",
+      "category": "Come Alive Dahi",
+      "productUrl": "https://www.britannia.co.in/product/dahi",
+      "slug": "dahi",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FCome_Alive_Daily_Fresh_Dahi_710c4836c0.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FCome_Alive_Dahi_BRS_417c98711e.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FCome_Alive_Daily_Fresh_Dahi_710c4836c0.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FCome_Alive_Dahi_Variant_b59e4f498a.png&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FCome_Alive_Daily_Fresh_Dahi_710c4836c0.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fveg_06eff21df5.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FM_Britannia_Probiotic_11d5adb9c4.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:41:55.205Z"
+    },
+    {
+      "name": "Milk Bikis",
+      "description": "For the past four decades, these waffle-shaped biscuits have been an icon. Filled with the goodnessof milk, these delicious and crunchy treats can be enjoyed dipped, scooped or slurped. With fourvital vitamins, Milk Bikis is always a fun way to start the day.",
+      "category": "Milk Bikis",
+      "productUrl": "https://www.britannia.co.in/product/milk-bikis",
+      "slug": "milk-bikis",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMilk_Bikis_e8d2d3c4ff.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMilk_Bikis_e8d2d3c4ff.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMilk_Bikis_Milk_Cream_Pack_090be80919.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMilk_Bikis_Classic_Pack_7677cc5068.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMilk_Bikis_Atta_0059673e9c.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMilk_Bikis_Style_2b410c958c.png&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:42:01.165Z"
+    },
+    {
+      "name": "Tiger",
+      "description": "Krunchy chocolate cookies sprinkled with melt-in-mouth chocochips, Tiger Krunch Chocochip is everyone’s favourite chocochip cookie. The crunch of the biscuits combined with the delightful chocolate flavour makes it a delicious treat. Go ahead, indulge your kids with this irresistible delight anytime, anywhere.",
+      "category": "Tiger",
+      "productUrl": "https://www.britannia.co.in/product/tiger",
+      "slug": "tiger",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiger_Kreemz_Krunch_Choco_Chips_Pack_88614e034b.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiger_Brand_Range_Static_2_1_1c9cd86216.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiger_Kreemz_Krunch_Choco_Chips_Pack_88614e034b.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiger_Glucose_Pack_1d1a5a0689.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiger_Kreemz_Orange_Pack_a5f80466a6.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiger_Kreemz_Choco_Pack_edd9c800e7.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiger_Kreemz_Krunch_Choco_Chips_d317885019.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:42:06.210Z"
+    },
+    {
+      "name": "50-50",
+      "description": "Coated with butter and peppered with the choicest of herbs, 50-50 Maska Chaska is a truly unique blend. Enjoy this new twist of flavours with a taste that’s hard to forget and harder to resist. Grab your cracker and savour this mouthwatering delight.",
+      "category": "50-50",
+      "productUrl": "https://www.britannia.co.in/product/50-50",
+      "slug": "50-50",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F5050_Maska_8c7fd48a66.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F5050_Maska_8c7fd48a66.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F5050_Sweet_1f99df48bd.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F5050_Golmaal_Butter_Garlic_removebg_preview_a242009da8.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F5050_Golmaal_e98b590b78.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F5050_Maska_Style_6996074d77.png&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:42:16.949Z"
+    },
+    {
+      "name": "Ghee",
+      "category": "Ghee",
+      "productUrl": "https://www.britannia.co.in/product/pure-cow-ghee",
+      "slug": "pure-cow-ghee",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FDiary_Whitener_Pouch_Pack_54e2107f88.png&w=384&q=75",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FDiary_Whitener_Pouch_Pack_54e2107f88.png&w=384&q=75"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:42:23.004Z"
+    },
+    {
+      "name": "Jim Jam",
+      "description": "An open crème biscuit with a jammy top, made for effortless indulgence. No twisting, no extra steps. Just grab it and enjoy it with one hand. The crème and jam are already waiting, all you need to do is Lick, Pop and love every bite of it.",
+      "category": "Jim Jam",
+      "productUrl": "https://www.britannia.co.in/product/jim-jam",
+      "slug": "jim-jam",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FJim_Jam_Pops_c8ae89e7b7.jpg&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FJim_Jam_BRS_4bbb67699f.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FJim_Jam_Pops_c8ae89e7b7.jpg&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FJim_Jam_Pack_aa2e0478ea.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FJim_Jam_Pops_Style_0fc1226ec6.png&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:42:32.721Z"
+    },
+    {
+      "name": "Dairy Whitener",
+      "description": "Britannia Dairy Whitener is packed with the goodness of cow’s milk. This deliciously sweetened milk mix has complete miscibility and dissolves easily and evenly in a cup of lukewarm water. The perfect partner for your daily cup of tea or coffee, make your beverage creamier and tastier with this exquisite milk powder.",
+      "category": "Dairy Whitener",
+      "productUrl": "https://www.britannia.co.in/product/dairy-whitener",
+      "slug": "dairy-whitener",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FDiary_Whitener_Pouch_8298b15dad.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FDairy_Whitener_BRS_409f0f051d.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FDiary_Whitener_Pouch_8298b15dad.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FDairy_Whitener_Pouch_a51c861b63.png&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FDiary_Whitener_Pouch_8298b15dad.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fveg_06eff21df5.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:42:47.429Z"
+    },
+    {
+      "name": "Britannia Bourbon",
+      "description": "Savor the rich and smooth chocolate filling between the layers of our crispy chocolatey biscuit. A touch of sparkling sugar crystals adds a delightful twinkle. Every bite of Britannia Bourbon is a burst of irresistible chocolatey indulgence, perfect for sharing with friends or enjoying on your own.",
+      "category": "Britannia Bourbon",
+      "productUrl": "https://www.britannia.co.in/product/bourbon",
+      "slug": "bourbon",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBourbon_Drool_77a99aa3e6.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPicture1_51904187a0.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBourbon_Drool_77a99aa3e6.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBourbon_049b73d9a5.png&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBourbon_Drool_77a99aa3e6.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fveg_712b8663a6.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FM_Britannia_Chocolate_e57ddc478f.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:42:53.475Z"
+    },
+    {
+      "name": "Treat",
+      "description": "Rich choco creme filling sandwiched between crispy choco biscuits, this mouthwatering treat is a mouthful of chocolate in every crunch. The ultimate choco decadence - treat yourself to Treat Burst Choco Creme Fills. An irresistible delight with a burst of fun in every bite!",
+      "category": "Treat",
+      "productUrl": "https://www.britannia.co.in/product/treat",
+      "slug": "treat",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Ftreat_burst_5b7200b736.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_BRS_1_2_1_a0cfa132ee.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Ftreat_burst_5b7200b736.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_Treat_Chocolate_And_Vanilla_Chocolate_Pack_fcfffe5f8a.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_Chocolate_And_Vanilla_Kool_Vanilla_Pack_e3badb9e31.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_Treat_Fruit_Cream_Orange_Pack_de8f06a186.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_Burst_4e038c8733.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:42:58.525Z"
+    },
+    {
+      "name": "LITTLE HEARTS",
+      "description": "Crunchy, sugar-glazed and oh-so-tempting, this heart-shaped biscuit is the perfect snack to pop anytime, anywhere. So, if you're looking for some fun and memorable times, just grab a pack of the delicious Britannia Little Hearts, and relish the sweet crunchy bite combined with a melt in the mouth experience.",
+      "category": "LITTLE HEARTS",
+      "productUrl": "https://www.britannia.co.in/product/little-hearts",
+      "slug": "little-hearts",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLH_New_Pack_60c4fd2645.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLH_New_Pack_60c4fd2645.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLittle_Hearts_31d4140cd2.png&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLH_New_Pack_60c4fd2645.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fveg_712b8663a6.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:43:09.445Z"
+    },
+    {
+      "name": "Pure Magic",
+      "description": "Pure Magic Choco Frames is a smooth bar of choco framed by a crisp biscuit! It is meticulously prepared with a touch of art for a rich chocolate experience in a unique form.",
+      "category": "Pure Magic",
+      "productUrl": "https://www.britannia.co.in/product/pure-magic",
+      "slug": "pure-magic",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fbiscuit_a191d1dbec.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fbiscuit_a191d1dbec.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPure_Magic_Stars_f10b69390f.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fchocolust_9bfd521ca5.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPure_Magic_PM_Choco_Pack_f837fe0f74.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPure_magic_choco_frames_FOP_1920_X1920_75ca1f0267.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:43:14.224Z"
+    },
+    {
+      "name": "Nice Time",
+      "description": "The goodness of coconut infused in a crisp biscuit sprinkled with delicious sugar crystals makes for a sweet and exquisite delight. A tea time must, these coconut biscuits are the perfect answer to your sweet cravings. Begin the good times, have a Nice Time.",
+      "category": "Nice Time",
+      "productUrl": "https://www.britannia.co.in/product/nice-time",
+      "slug": "nice-time",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNice_time_e26caddb2a.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNice_Time_Brand_Range_Statics_v3_21abf24f1f.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNice_time_e26caddb2a.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNice_Time_Variant_36ec558ff8.png&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNice_time_e26caddb2a.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fveg_712b8663a6.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FM_Britannia_Coconuts_277acb834c.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:43:19.269Z"
+    },
+    {
+      "name": "Biscafe",
+      "description": "A slim cracker infused with the flavour of rich coffee and a delicate sprinkling of sugar, Biscafe creates an irresistible coffee experience. Grab a friend, take a Biscafe and create some special moments with this mouthwatering coffee delight.",
+      "category": "Biscafe",
+      "productUrl": "https://www.britannia.co.in/product/biscafe",
+      "slug": "biscafe",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBiscafe_bb4546d786.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBiscafe_bb4546d786.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBiscafe_Variant_a3e3c08b9e.png&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBiscafe_bb4546d786.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fveg_4e2c54167d.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FM_Britannia_Coffee_Beans_3552c39159.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:43:30.498Z"
+    },
+    {
+      "name": "White Bread",
+      "description": "These soft and sweet white bread slices are enriched with essential B vitamins. Make your mornings sweeter with Britannia Sweet Bread - the perfect partner for your favourite hot beverage or a generous scoop of your favourite spread.",
+      "category": "White Bread ",
+      "productUrl": "https://www.britannia.co.in/product/white-bread",
+      "slug": "white-bread",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FSweet_Slice_Bread_600g_T_and_T_3_D_FOP_ff9b1e3b01.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FClubbed_Cheese_Garlic_Bread_and_Missi_Bread_bab4900cb4.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FSweet_Slice_Bread_600g_T_and_T_3_D_FOP_ff9b1e3b01.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FVitarich_Sandwich_600g_Large_T_and_T_3_D_FOP_7a8351aca0.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FSandwich_Bread_300g_Blue_Blue_LR_HV_T_and_T_3_D_FOP_922a003e0d.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F2234_Milk_Slice_Bread_400g_T_and_T_3_D_FOP_3169386c94.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FWhite_Breads_Sweet_Slice_Bread_600g_T_and_T_3_D_FOP_1400x1400_0e53f66021.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:43:35.831Z"
+    },
+    {
+      "name": "Treat Creme Wafers",
+      "description": "Crispy and light wafers layered with sweet choco cream, Britannia Treat Choco Creme Wafers are a lip-smacking delight. Enjoy this sumptuous cream-filled experience with every snappy bite. Get your yummy, choco delight and relish each bite as it melts in your mouth.",
+      "category": "Treat Creme Wafers",
+      "productUrl": "https://www.britannia.co.in/product/treat-creme-wafers",
+      "slug": "treat-creme-wafers",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F1041_x_484_Choco_01e91a6a6f.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNEW_PACKS_Wafers_Brand_Range_Static_c6028a3ef1_6695f6b59a.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F1041_x_484_Choco_01e91a6a6f.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F1041_x_484_Orange_1e2f44ddbe.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F1041_x_484_Strawberry_b18409421f.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F1041_x_484_Vanilla_237796336b.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F4000_x_4000_Chocolate_0a3e7ba384.png&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:43:40.997Z"
+    },
+    {
+      "name": "Wheat flour Breads",
+      "description": "Milled from 100% whole wheat grains, this Atta based bread is the perfect blend of wheat flour (Atta) and wheat bran. No added Maida and low in saturated fat, this Atta bread is a good source of fibre. Britannia 100% Whole Wheat Bread pairs perfectly well with a healthy diet.",
+      "category": "Wheat flour Breads ",
+      "productUrl": "https://www.britannia.co.in/product/wheat-flour-breads",
+      "slug": "wheat-flour-breads",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F100pc_Whole_Wheat_Bread_400g_LR_T_and_T_3_D_FOP_fcc7a0013f.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F100pc_Whole_Wheat_Bread_400g_LR_T_and_T_3_D_FOP_fcc7a0013f.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FHigh_Fibre_300g_T_and_T_3_D_FOP_925bdce809.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBrown_Bread_400g_T_and_T_3_D_FOP_0936c309ad.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FAW_1981_96115_Atta_Bread_With_Caremel_400g_LR_T_and_T_FOP_f87ea6dc59.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F100pc_Whole_Wheat_Bread_400g_LR_T_and_T_3_D_FOP_1400x1400_f0906ab75d.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:43:55.091Z"
+    },
+    {
+      "name": "Treat Croissant",
+      "description": "Have a never-before snacking experience with Britannia Treat Croissant - Cocoa. Rich, delicious cocoa cream oozes out of layers of soft bread to give you a unique and irresistible experience.",
+      "category": "Treat Croissant",
+      "productUrl": "https://www.britannia.co.in/product/treat-croissant",
+      "slug": "treat-croissant",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_Croissant_Cocoa_47_Pack_85184e07f4.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBrand_Range_Static_Croissant_1_b566477d85.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_Croissant_Cocoa_47_Pack_85184e07f4.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_Croissant_Vanilla_Pack_6384f7218d.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTreat_Croissant_Mixed_Fruit_47_Pack_05eabd97f0.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBB_CHOCO_13_91de3a37ab.png&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:00.154Z"
+    },
+    {
+      "name": "Be You PROTEIN BAR",
+      "description": "Chocolicious with a zesty spark! Now bite, warm up, and ace your game! 10g of protein bar made super yummy with strawberries, cranberries, cocoa and oats!",
+      "category": "Be You PROTEIN BAR",
+      "productUrl": "https://www.britannia.co.in/product/be-you-protein-bar",
+      "slug": "be-you-protein-bar",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FChoco_Berries_FOP_ecf95eaeaa.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FChoco_Berries_FOP_ecf95eaeaa.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FChoco_Almond_FOP_1d0d215e82.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNutty_Choco_Fudge_FOP_fdf27f6f57.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBRITANNIA_WEBSITE_15_c8cd78d053.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:05.194Z"
+    },
+    {
+      "name": "Fudge It",
+      "description": "Soft, spongy and fluffy with crunchy chocolate chips, this moist chocolate brownie is a fudge-licious delight. Indulge yourself in this melt-in-your-mouth experience. Britannia Fudge It - your new dessert buddy. On the couch or on the go, this yummy treat will have you asking for more!",
+      "category": "Fudge It",
+      "productUrl": "https://www.britannia.co.in/product/cakes-fudge-it",
+      "slug": "cakes-fudge-it",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FFudge_It_7271c9fa72.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FFudge_It_7271c9fa72.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FFudge_It_Variant_Shot_FINAL_1_fbd2226180.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FFudge_It_7271c9fa72.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fcontains_egg_be84f21c80.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FM_Britannia_Milk_0a34e03981.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMM_Choco_Chip_73301d2ba7.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:12.541Z"
+    },
+    {
+      "name": "Gobbles",
+      "description": "Soft and fluffy with a rich chocolate flavour and the goodness of milk and eggs, Britannia Gobbles Choco Chill Cake is baked to perfection. Indulge yourself in this irresistible chocolatey delight. Get your latest all-time snack - have a melt-in-your-mouth experience with every bite.",
+      "category": "Gobbles",
+      "productUrl": "https://www.britannia.co.in/product/gobbles",
+      "slug": "gobbles",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGobbles_Choco_Pack_6887befb99.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGobbles_Brand_Range_v2_53e6bb3c78.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGobbles_Choco_Pack_6887befb99.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGobbles_Fruit_Pack_962ce53db1.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGobbles_Milk_Pack_b8ef5b00c7.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGobbles_Pineapple_Pack_342648e821.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGobbles_Choco_f6f368dd4b.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:17.596Z"
+    },
+    {
+      "name": "Veg Cake",
+      "description": "Soft and fluffy, each eggless slice of this wholesome cake is packed with fruit chunks. A delicious all-time snack, this scrumptious delight is the perfect answer to your hunger pangs. Make your day happy, enjoy a Britannia Veg Fruity Fun Cake. Now available even at just 10 Rupees!",
+      "category": "Veg Cake",
+      "productUrl": "https://www.britannia.co.in/product/veg-cake",
+      "slug": "veg-cake",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FVeg_Cake_Fruit_Pack_2283bc28f6.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FVeg_Cake_BRS_1_d9f1487d6f.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FVeg_Cake_Fruit_Pack_2283bc28f6.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FVeg_Cake_Choco_Pack_22f0401794.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FVeg_Cake_Fruit_d99ed0fdbf.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:22.658Z"
+    },
+    {
+      "name": "Muffils",
+      "description": "Oozing with creamy strawberry filling, these soft and fluffy muffins are baked to perfection. Sweet and light, these crème-filled cakes are a delicious all-time snack. Indulge yourself in the mouth-watering Britannia Strawberry Muffils, a delight in every delicious bite.",
+      "category": "Muffils",
+      "productUrl": "https://www.britannia.co.in/product/muffils",
+      "slug": "muffils",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMuffils_Strawberry_Pack_188bdf6083.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMuffils_Brand_Range_Static_bda9af0d7f.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMuffils_Strawberry_Pack_188bdf6083.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMuffils_Double_Choco_Pack_384e1a810d.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMuffils_Strawberry_0b851dee73.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:27.724Z"
+    },
+    {
+      "name": "Toastea",
+      "description": "Packed with the goodness of wheat and real elaichi, this tasty and crunchy rusk is the perfect accompaniment for your cup of tea. Its balanced sweetness and the mild elaichi aroma and flavour enhance your tea time experience and give you the energy to kickstart your morning.",
+      "category": "Toastea",
+      "productUrl": "https://www.britannia.co.in/product/toastearusk",
+      "slug": "toastearusk",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPremium_Rusk_Pack_ed00d578ed.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FRusk_Brand_Range_Static_60da9a388c.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FPremium_Rusk_Pack_ed00d578ed.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fbutter_Rusk_Pack_aedfc08725.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMilk_Rusk_Pack_6ab29c0a73.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fpremium_rusk_843ced58c9.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:32.784Z"
+    },
+    {
+      "name": "Time Pass Salted Snacks",
+      "description": "Crispy and crunchy, Britannia Time Pass Groovy Chips Masala Mania is made with a delicious blend of spices. Baked, not fried, it’s a flavourful ride in every snappy bite. Grab a pack of these groovy chips and get set with your hangout gang for some grooving moments. Enjoy these super tasty snacks anytime, anywhere!",
+      "category": "Time Pass Salted Snacks",
+      "productUrl": "https://www.britannia.co.in/product/timepass-salted-snacks",
+      "slug": "timepass-salted-snacks",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTime_Pass_TP_Groovy_Chips_Masala_Pack_59848be2e2.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTime_Pass_TP_Groovy_Chips_Masala_Pack_59848be2e2.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTime_Pass_TP_Groovy_Chips_Tomato_Pack_f6399ff611.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FT_Ime_Pass_TP_Stick_Tomato_Pack_2e0ca40420.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTime_Pass_TP_Stick_Masala_Pack_b534144a4b.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTime_Pass_TP_Groovy_Chips_Masala_c21ee03795.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTime_Pass_TP_Groovy_Chips_Masala_c21ee03795.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:39.706Z"
+    },
+    {
+      "name": "Layerz",
+      "description": "Smooth choco crème sandwiched between layers of moist, choco cake, Britannia Layerz Choco Layer Cake is irresistible. The choco indulgence complemented with heavenly crème, it’s yummy in every fulfilling bite. Your all-time snack, it’s the perfect treat for your kids and for you!",
+      "category": "Layerz",
+      "productUrl": "https://www.britannia.co.in/product/cakes-layerz",
+      "slug": "cakes-layerz",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLayered_Cake_Choco_Pack_4aac5827d3.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLayerz_Brand_Range_Static_1_14b350cef9.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLayered_Cake_Choco_Pack_4aac5827d3.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLayered_Cake_Orange_Pack_c0c4bc03e7.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FLayered_Cake_Choco_622933f38b.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:44.765Z"
+    },
+    {
+      "name": "Tiffin Fun",
+      "description": "A scrumptious treat, this soft and fluffy cake is loaded with chunks of fruit and enriched with the goodness of and eggs. The go-to snack for your child, it’s packed with deliciousness and  in every bite. Surprise your kids with some fruity fun, as they have Britannia Tiffin Fun.",
+      "category": "Tiffin Fun",
+      "productUrl": "https://www.britannia.co.in/product/tiffin-fun",
+      "slug": "tiffin-fun",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiffin_Cake_c10dae517e.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiffin_Fun_BRS_a4edc1f766.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiffin_Cake_c10dae517e.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiffin_Fun_Variant_79736ef728.png&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FTiffin_Cake_c10dae517e.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fcontains_egg_e8c029fc60.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FM_Britannia_Vitamins_Minerals_5_beb6cd2780.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:49.823Z"
+    },
+    {
+      "name": "Roll Yo!",
+      "description": "Choco flavoured crème swirled inside a soft, fluffy cake makes for a delicious chocolatey delight. Baked to perfection, Britannia Roll Yo! Choco Swiss Roll is an irresistible delight. Light yet filling, it’s the perfect answer to your hunger pangs. Give in to the temptation and indulge yourself in the smooth, mouthwatering swirls.",
+      "category": "Roll Yo!",
+      "productUrl": "https://www.britannia.co.in/product/roll-yo",
+      "slug": "roll-yo",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FRoll_Yo_Swiss_Roll_Choco_Pack_301af80367.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FRoll_Yo_Swiss_Roll_Choco_Pack_301af80367.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FRoll_Yo_Triple_Choco_Swiss_Roll_Pack_b08325f948.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FRoll_Yo_Choco_Vanilla_Swiss_Roll_Pack_17db7972d0.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FRoll_Yo_Swiss_Roll_Choco_bebd20800f.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:44:55.393Z"
+    },
+    {
+      "name": "Be You NUTRITION BAR",
+      "description": "It’s berry zesty & berry nutty! Say hello to your travel, exercise or work-day buddy! This bar is yummy with fiber-packed oats, almonds, cranberries, sunflower seeds & chia seeds. The bar is sweetened by dates and honey.",
+      "category": "Be You NUTRITION BAR",
+      "productUrl": "https://www.britannia.co.in/product/be-you-nutrition-bar",
+      "slug": "be-you-nutrition-bar",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FAlmond_Cranberry_FOP_8fa57d1ecf.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNUTRITION_3c128e57ef.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FAlmond_Cranberry_FOP_8fa57d1ecf.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNutty_Almond_Sesame_FOP_f27fcdda7f.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBRITANNIA_WEBSITE_10_74bd494ca3.jpg&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:45:00.446Z"
+    },
+    {
+      "name": "Gourmet Breads",
+      "description": "Soft buns rolled evenly with the sweet touch of pineapple and papaya cuts, this delicious snack has a fruity flavour and a sweet aftertaste. Toast it up with butter and it will keep you wanting more. Make your life more fun with Britannia Fruit Bun.",
+      "category": "Gourmet Breads",
+      "productUrl": "https://www.britannia.co.in/product/gourmet-breads",
+      "slug": "gourmet-breads",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FFruit_Bun_70g_Lam_Roll_250x290mm_3_D_FOP_719559994d.png&w=384&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FGourmet_Bread_BRS_8ef922176a.png&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FFruit_Bun_70g_Lam_Roll_250x290mm_3_D_FOP_719559994d.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FFruit_Bread_PP_Design_200g_Kolkata_T_and_T_3_D_FOP_1ffd900278.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FChoco_Bread_3b8ba07389.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F9000461_BRITANNIA_CHOCO_BUN_100_G_2_PCS_1_158e307a2f.png&w=384&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2F1_Fruit_Bun_70g_Lam_Roll_250x290mm_1400x1400_2a62a89532.png&w=1920&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:45:05.495Z"
+    },
+    {
+      "name": "Nuts & Raisin Romance Cake",
+      "description": "Soft and fluffy cake slices packed with crunchy almonds and soft raisins along with a hint of orange peel, Britannia Nuts & Raisin Romance Cake is a delicious experience. This tasty and  all-time snack also has the goodness of eggs. Sweet and fulfilling in every bite, relish it at home or on the go.",
+      "category": "Nuts & Raisin Romance Cake",
+      "productUrl": "https://www.britannia.co.in/product/nuts-and-raisin",
+      "slug": "nuts-and-raisin",
+      "images": {
+        "primary": "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNut_And_Raisin_6c75bf00c6.jpg&w=256&q=100",
+        "gallery": [
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FBritannia_Logo_fcce3225c0.png&w=2048&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNut_and_Raisin_BRS_1_32597bec75.jpg&w=3840&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNut_And_Raisin_6c75bf00c6.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNut_and_Raisin_1_89e9813ec0.jpg&w=256&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FNut_And_Raisin_6c75bf00c6.jpg&w=1920&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2Fcontains_egg_e8c029fc60.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FMM_Almonds_3cc5c824ac.png&w=128&q=100",
+          "https://www.britannia.co.in/_next/image?url=https%3A%2F%2Fmedia.britannia.co.in%2FM_Britannia_Vitamins_Minerals_b19dcdbaa7.png&w=128&q=100"
+        ],
+        "thumbnails": []
+      },
+      "createdAt": "2025-12-03T20:45:10.552Z"
+    }
+  ],
+  "metadata": {
+    "source": "britannia-scraper",
+    "version": "1.0.0",
+    "scrapeMethod": "api-dom-hybrid",
+    "environment": "development"
+  }
+}
