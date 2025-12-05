@@ -524,10 +524,15 @@ export class FreePikImageService {
       };
 
       const prompt = `
-Create compelling branding content for ${productData.name} by Britannia.
+Create compelling branding content for Britannia's "${productData.name}".
+
+CRITICAL REQUIREMENTS:
+- Product name MUST be used exactly as: "${productData.name}" (NO CHANGES ALLOWED)
+- Company name MUST be: "Britannia" (NO OTHER COMPANY NAMES)
 
 Product Details:
-- Name: ${productData.name}
+- Exact Product Name: ${productData.name}
+- Company: Britannia
 - Description: ${productData.description || 'Premium biscuit/snack product'}
 - Category: ${productData.category || 'Biscuits & Snacks'}
 - Flavor: ${request.flavor || 'Classic'}
@@ -538,14 +543,17 @@ Branding Requirements:
 - Style: ${request.style}
 
 Generate:
-1. A compelling tagline (5-8 words max) that captures the essence
-2. A engaging caption (20-40 words) for the branding image
+1. A compelling tagline (5-8 words max) that captures the essence using EXACT product name "${productData.name}"
+2. A engaging caption (20-40 words) for the branding image featuring "Britannia's ${productData.name}"
 
 Make it:
 - Brand-aligned with Britannia's heritage
-- Tone-appropriate for ${request.tone} audience
+- Tone-appropriate for ${request.tone} audience  
 - Platform-optimized for ${request.platform}
-- Product-focused on ${productData.name}
+- Product-focused on exact name "${productData.name}"
+- Company-focused on "Britannia" brand only
+
+IMPORTANT: Use exact product name "${productData.name}" and company name "Britannia" only.
 
 Respond in this JSON format:
 {
@@ -584,27 +592,29 @@ Respond in this JSON format:
    * Fallback branding content when AI generation fails
    */
   private getFallbackBrandingContent(productData: any, request: ImageBrandingRequest) {
+    const productName = productData.name; // Use exact product name
+    
     const toneTaglines = {
-      youth: `${productData.name} - Your Vibe!`,
-      family: `${productData.name} - Family Moments`,
-      premium: `${productData.name} - Pure Excellence`,
-      health: `${productData.name} - Naturally Good`,
-      traditional: `${productData.name} - Time Tested`,
-      professional: `${productData.name} - Success Fuel`
+      youth: `${productName} - Your Vibe!`,
+      family: `${productName} - Family Moments`,
+      premium: `${productName} - Pure Excellence`,
+      health: `${productName} - Naturally Good`,
+      traditional: `${productName} - Time Tested`,
+      professional: `${productName} - Success Fuel`
     };
 
     const toneCaptions = {
-      youth: `Experience the amazing taste of ${productData.name}! Perfect for your active lifestyle and trending moments.`,
-      family: `Bring your family together with the delicious taste of ${productData.name}. Creating memories, one bite at a time.`,
-      premium: `Indulge in the sophisticated taste of ${productData.name}. Crafted for those who appreciate the finest quality.`,
-      health: `Nourish your body with the wholesome goodness of ${productData.name}. Natural ingredients, authentic taste.`,
-      traditional: `Discover the authentic taste of ${productData.name}. A heritage of quality that spans generations.`,
-      professional: `Fuel your success with ${productData.name}. The perfect companion for your professional journey.`
+      youth: `Experience the amazing taste of Britannia's ${productName}! Perfect for your active lifestyle and trending moments.`,
+      family: `Bring your family together with the delicious taste of Britannia's ${productName}. Creating memories, one bite at a time.`,
+      premium: `Indulge in the sophisticated taste of Britannia's ${productName}. Crafted for those who appreciate the finest quality.`,
+      health: `Nourish your body with the wholesome goodness of Britannia's ${productName}. Natural ingredients, authentic taste.`,
+      traditional: `Discover the authentic taste of Britannia's ${productName}. A heritage of quality that spans generations.`,
+      professional: `Fuel your success with Britannia's ${productName}. The perfect companion for your professional journey.`
     };
 
     return {
-      tagline: toneTaglines[request.tone as keyof typeof toneTaglines] || `${productData.name} - Britannia`,
-      caption: toneCaptions[request.tone as keyof typeof toneCaptions] || `Enjoy the delicious taste of ${productData.name} from Britannia.`
+      tagline: toneTaglines[request.tone as keyof typeof toneTaglines] || `${productName} - Britannia`,
+      caption: toneCaptions[request.tone as keyof typeof toneCaptions] || `Enjoy the delicious taste of Britannia's ${productName}.`
     };
   }
 
@@ -624,16 +634,16 @@ Respond in this JSON format:
   }): string {
     const { productName, productDescription, platform, tone, style, caption, tagline } = context;
 
-    // Enhanced branding prompt based on the reference images
-    let prompt = `Professional branding advertisement for ${productName} by Britannia`;
+    // CRITICAL: Start with exact product name and Britannia branding enforcement
+    let prompt = `Professional branding advertisement for Britannia "${productName}" (EXACT PRODUCT NAME: "${productName}" - DO NOT CHANGE OR MODIFY)`;
     
-    // Add the core branding elements
-    prompt += `, featuring the tagline "${tagline}"`;
-    prompt += `, with marketing message "${caption}"`;
+    // Add the core branding elements with strict naming
+    prompt += `, featuring the tagline "${tagline}" for Britannia's "${productName}"`;
+    prompt += `, with marketing message "${caption}" promoting Britannia's "${productName}"`;
     
-    // Add product and brand elements
-    prompt += `, prominent Britannia logo placement`;
-    prompt += `, ${productName} product packaging prominently displayed`;
+    // Add product and brand elements with enforcement
+    prompt += `, prominent Britannia brand logo placement (COMPANY NAME: "Britannia" ONLY)`;
+    prompt += `, "${productName}" product packaging prominently displayed (USE EXACT NAME: "${productName}")`;
     
     // Tone-specific branding styles
     const toneStyles = {
@@ -666,18 +676,20 @@ Respond in this JSON format:
     prompt += `, ${styleMap[style as keyof typeof styleMap] || 'attractive layout'}`;
     prompt += `, ${platformSpecs[platform as keyof typeof platformSpecs] || 'optimized format'}`;
     
-    // Add product description if available
+    // Add product description if available with exact naming
     if (productDescription) {
-      prompt += `, highlighting ${productDescription}`;
+      prompt += `, highlighting "${productName}" features: ${productDescription}`;
     }
 
-    // Add quality and branding elements
-    prompt += `, high-quality commercial photography, professional advertising design`;
-    prompt += `, brand identity focused, marketing campaign style, commercial grade`;
-    prompt += `, studio lighting, clean background, product hero shot`;
+    // Add quality and branding elements with strict enforcement
+    prompt += `, high-quality commercial photography for Britannia's "${productName}"`;
+    prompt += `, professional advertising design featuring "${productName}" by Britannia`;
+    prompt += `, brand identity focused on Britannia "${productName}", marketing campaign style`;
+    prompt += `, studio lighting, clean background, product hero shot of "${productName}"`;
     
-    // Final branding touch
+    // Final branding touch with enforcement
     prompt += `, Britannia brand heritage, Indian premium food brand aesthetic`;
+    prompt += `, MUST DISPLAY: Product name exactly as "${productName}", Company name as "Britannia" only`;
 
     return prompt;
   }

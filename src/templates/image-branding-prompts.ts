@@ -1,16 +1,19 @@
 import { ImagePromptContext } from '../types/image-branding.types';
 
 export const IMAGE_BRANDING_PROMPT_TEMPLATE = {
-  system: `You are an expert visual branding designer specializing in food product marketing. You create compelling, brand-consistent visual content that drives engagement and sales.
+  system: `You are an expert visual branding designer specializing in Britannia food product marketing. You create compelling, brand-consistent visual content that drives engagement and sales for Britannia products only.
 
 Your expertise includes:
-- Creating visually stunning product advertisements that capture brand essence
+- Creating visually stunning Britannia product advertisements that capture brand essence
 - Understanding platform-specific visual requirements and best practices
-- Combining product imagery with compelling visual storytelling
-- Designing layouts that highlight product features while maintaining brand identity
+- Combining Britannia product imagery with compelling visual storytelling
+- Designing layouts that highlight Britannia product features while maintaining brand identity
 - Creating authentic, engaging visuals that resonate with target audiences
 
-Generate creative, platform-optimized visual concepts that make products irresistible.`,
+IMPORTANT RULES:
+- ALWAYS use the EXACT product name provided - never change, modify, or substitute it
+- ALWAYS use "Britannia" as the brand name - never use any other company name
+- Generate creative, platform-optimized visual concepts that make Britannia products irresistible.`,
 
   buildImagePrompt: (context: ImagePromptContext): string => {
     const {
@@ -33,13 +36,18 @@ Generate creative, platform-optimized visual concepts that make products irresis
     // Tone-specific visual mood
     const toneMood = getToneVisualMood(tone);
 
-    return `Create a stunning ${platform} branding image for "${productName}" with these specifications:
+    return `Create a stunning ${platform} branding image for Britannia's "${productName}" with these specifications:
 
 ## PRODUCT DETAILS
-- Product: ${productName}
+- Brand: Britannia
+- Product Name: ${productName} (USE THIS EXACT NAME - DO NOT CHANGE)
 - Category: ${productCategory || 'Food Product'}
 ${productDescription ? `- Description: ${productDescription}` : ''}
 ${productHighlights ? `- Key Features: ${productHighlights.join(', ')}` : ''}
+
+## CRITICAL REQUIREMENTS
+- Product name MUST remain exactly: "${productName}" (no variations, substitutions, or modifications)
+- Brand name MUST be "Britannia" (no other company names allowed)
 
 ## VISUAL STYLE REQUIREMENTS
 - Primary Style: ${style} design approach
@@ -54,7 +62,9 @@ ${platformRequirements}
 ${styleElements}
 
 ## BRAND GUIDELINES
-- Use Britannia brand aesthetics (warm, trustworthy, family-oriented)
+- Use ONLY Britannia brand aesthetics (warm, trustworthy, family-oriented)
+- Display product name exactly as "${productName}" - NO CHANGES ALLOWED
+- Show "Britannia" as the brand name - NO OTHER COMPANY NAMES
 - Incorporate product prominently as the hero element
 - Create visual hierarchy that guides eye to product
 - Use complementary colors that enhance product appeal
@@ -76,9 +86,13 @@ ${styleElements}
 - Colors that enhance product appeal
 - Typography that matches brand personality
 
-IMPORTANT: Reference the provided images for inspiration but create an original, unique composition. Do not copy existing designs - use them as style and quality benchmarks only.
+IMPORTANT: 
+- Reference the provided images for inspiration but create an original, unique composition
+- Do not copy existing designs - use them as style and quality benchmarks only
+- MUST use exact product name: "${productName}" (no variations allowed)
+- MUST show "Britannia" as the brand (no other company names)
 
-Generate an original, compelling visual that would make viewers want to try this ${productName} immediately!`;
+Generate an original, compelling Britannia visual that would make viewers want to try "${productName}" immediately!`;
   }
 };
 
