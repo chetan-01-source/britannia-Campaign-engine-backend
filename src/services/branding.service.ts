@@ -1,7 +1,7 @@
 import { genAI, isGeminiAvailable } from '../config/gemini';
 import { embeddingService } from './embedding.service';
 import { pineconeService } from './pinecone.service';
-import { freePikImageService } from './freepik-image.service';
+import { geminiGenImageService } from './gemini-genai.service';
 import { BrandingRequest, BrandingResponse, ProductContext } from '../types/branding.types';
 import { ImageBrandingRequest } from '../types/image-branding.types';
 import { buildBrandingPrompt, BrandingPromptRequest } from '../templates';
@@ -70,16 +70,31 @@ export class BrandingService {
       };
       const brandingContent = await this.generateBranding(brandingRequest);
 
-      // Step 2: Generate branding image using FreePik
-      console.log('🖼️ Generating branding image with FreePik...');
-      const imageRequest: ImageBrandingRequest = {
+      // Step 2: Generate branding image using GeminiGen
+      console.log('🖼️ Generating branding image with GeminiGen...');
+      console.log('📋 Branding Service - Input request:', {
         productName: request.productName,
-        platform: platform,
+        platform: request.platform,
         tone: request.tone,
         flavor: request.flavor,
+        style: request.style
+      });
+      console.log('📋 Branding Service - Processed values:', {
+        platform: platform,
+        tone: tone,
         style: style
+      });
+      
+      const imageRequest: ImageBrandingRequest = {
+        productName: request.productName.trim(),
+        platform: platform.toLowerCase(),
+        tone: request.tone.toLowerCase(),
+        flavor: request.flavor?.trim(),
+        style: (style?.toLowerCase() || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful'
       };
-      const imageResult = await freePikImageService.generateBrandingImage(imageRequest);
+      
+      console.log('🎨 Image branding request (from branding service):', imageRequest);
+      const imageResult = await geminiGenImageService.generateBrandingImage(imageRequest);
 
       if (!imageResult.success || !imageResult.data) {
         throw new Error(`Image generation failed: ${imageResult.error}`);
@@ -515,7 +530,7 @@ export class BrandingService {
    * Check if branding service is available
    */
   public isAvailable(): boolean {
-    return isGeminiAvailable() && freePikImageService.isAvailable();
+    return isGeminiAvailable() && geminiGenImageService.isAvailable();
   }
 }
 

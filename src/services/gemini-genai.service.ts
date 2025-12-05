@@ -1,20 +1,22 @@
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
-import { ImageBrandingRequest, ImageBrandingResponse } from '../types/image-branding.types';
+import { ImageBrandingRequest, ImageBrandingResponse, ImagePromptContext } from '../types/image-branding.types';
 import { ProductModel } from '../models/product.model';
 import { BrandingModel } from '../models/branding.model';
 import { generateGeminiContent } from '../config/gemini';
 import { uploadImageToS3, isS3Available } from '../utils/s3';
+import { IMAGE_BRANDING_PROMPT_TEMPLATE } from '../templates/image-branding-prompts';
 
-export class FreePikImageService {
-  private static instance: FreePikImageService;
+export class GeminiGenImageService {
+  private static instance: GeminiGenImageService;
   private apiKey: string;
-  private apiUrl: string = 'https://api.freepik.com/v1/ai/text-to-image/flux-dev';
+  private apiUrl: string = 'https://api.geminigen.ai/uapi/v1/generate_image';
+  private statusApiUrl: string = 'https://api.geminigen.ai/uapi/v1/history';
   private outputDir: string;
 
   private constructor() {
-    this.apiKey = process.env.FREEPIK_API_KEY || '';
+    this.apiKey = process.env.GENGEMINI_API_KEY || '';
     this.outputDir = path.join(__dirname, '../../generated-images');
     
     // Create output directory if it doesn't exist
@@ -24,26 +26,38 @@ export class FreePikImageService {
     }
 
     if (!this.apiKey) {
-      console.warn('⚠️ FREEPIK_API_KEY not found in environment variables');
+      console.warn('⚠️ GENGEMINI_API_KEY not found in environment variables');
+    } else if (this.apiKey.startsWith('tts-')) {
+      console.error('❌ GENGEMINI_API_KEY appears to be for text-to-speech service, not image generation!');
+      console.error('❌ Please check if you have the correct API key for GeminiGen image generation');
+    } else {
+      console.log('✅ GeminiGen API key configured');
     }
   }
 
-  public static getInstance(): FreePikImageService {
-    if (!FreePikImageService.instance) {
-      FreePikImageService.instance = new FreePikImageService();
+  public static getInstance(): GeminiGenImageService {
+    if (!GeminiGenImageService.instance) {
+      GeminiGenImageService.instance = new GeminiGenImageService();
     }
-    return FreePikImageService.instance;
+    return GeminiGenImageService.instance;
   }
 
   /**
-   * Generate branding image using FreePik API
+   * Generate branding image using GeminiGen API
    */
   public async generateBrandingImage(request: ImageBrandingRequest): Promise<ImageBrandingResponse> {
     try {
-      console.log('🎨 Starting FreePik image generation for:', request.productName);
+      console.log('🎨 Starting GeminiGen image generation for:', request.productName);
+      console.log('📋 Request details:', {
+        productName: request.productName,
+        platform: request.platform,
+        tone: request.tone,
+        style: request.style,
+        flavor: request.flavor
+      });
 
       if (!this.apiKey) {
-        throw new Error('FreePik API key not configured');
+        throw new Error('GeminiGen API key not configured');
       }
 
       // Get product data from database
@@ -55,9 +69,17 @@ export class FreePikImageService {
       console.log('✅ Found product:', productData.name);
 
       // Step 2: Generate branding caption and tagline
-      const brandingContent = await this.generateBrandingContent(productData, request);
+      console.log('🤖 Generating branding content...');
+      let brandingContent;
+      try {
+        brandingContent = await this.generateBrandingContent(productData, request);
+        console.log('✅ Branding content generated:', brandingContent);
+      } catch (error) {
+        console.error('❌ Branding content generation failed, using fallback:', error);
+        brandingContent = this.getFallbackBrandingContent(productData, request);
+      }
 
-      // Step 3: Build optimized prompt for FreePik branding image
+      // Step 3: Build optimized prompt for GeminiGen branding image
       const prompt = this.buildBrandingPrompt({
         productName: productData.name,
         productDescription: productData.description,
@@ -70,9 +92,12 @@ export class FreePikImageService {
         tagline: brandingContent.tagline
       });
 
-      console.log('📝 Generated prompt:', prompt);
+      console.log('📝 Generated prompt:', prompt.substring(0, 200) + '...');
+      console.log('🔑 API Key format:', this.apiKey ? 
+        `${this.apiKey.substring(0, 6)}...${this.apiKey.substring(this.apiKey.length - 4)}` : 
+        'NOT SET');
 
-      // Generate image using FreePik API
+      // Generate image using GeminiGen API
       const imageResult = await this.generateImage(prompt, request);
         console.log('✅ Image generated, URL:', imageResult);
       
@@ -94,7 +119,7 @@ export class FreePikImageService {
             format: 'base64_png',
             generatedAt: new Date().toISOString(),
             dimensions: '1024x1024',
-            freepikRequestId: imageResult.requestId,
+            geminiGenRequestId: imageResult.requestId,
             s3Key: savedImage.s3Key,
             localPath: savedImage.filepath
           }
@@ -104,7 +129,7 @@ export class FreePikImageService {
       };
 
     } catch (error) {
-      console.error('❌ FreePik image generation failed:', error);
+      console.error('❌ GeminiGen image generation failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -113,39 +138,81 @@ export class FreePikImageService {
   }
 
   /**
-   * Generate image using FreePik API
+   * Generate image using GeminiGen API
    */
   private async generateImage(prompt: string, request: ImageBrandingRequest): Promise<{ imageUrl: string; requestId: string }> {
     try {
-      console.log('🚀 Calling FreePik API...');
+      console.log('🚀 Calling GeminiGen API...');
 
-      // Map tone to FreePik styling effects
-      const styling = this.getFreePikStyling(request.tone, request.style);
+      // Create FormData for multipart/form-data request
+      const FormData = require('form-data');
+      const formData = new FormData();
+      
+      const aspectRatio = this.getAspectRatio(request.platform);
+      const mappedStyle = this.mapStyleToGeminiGen(request.style || 'minimalist');
+      
+      formData.append('prompt', prompt);
+      formData.append('model', 'imagen-pro');
+      formData.append('aspect_ratio', aspectRatio);
+      formData.append('style', mappedStyle);
 
-      const requestBody = {
-        prompt: prompt,
-        aspect_ratio: this.getAspectRatio(request.platform),
-        styling: styling,
-        seed: Math.floor(Math.random() * 2147483648) // Random seed for variety
-      };
-
-      console.log('📤 FreePik request:', JSON.stringify(requestBody, null, 2));
-
-      // Step 1: Create the generation task
-      const response = await axios.post(this.apiUrl, requestBody, {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-freepik-api-key': this.apiKey
-        },
-        timeout: 60000 // 60 seconds timeout
+      console.log('📤 GeminiGen request details:', {
+        promptLength: prompt.length,
+        promptStart: prompt.substring(0, 200) + '...',
+        model: 'imagen-pro',
+        aspect_ratio: aspectRatio,
+        style: mappedStyle,
+        requestPlatform: request.platform,
+        requestStyle: request.style
       });
 
-      console.log('📥 FreePik response status:', response.status);
-      console.log('📥 FreePik response data:', JSON.stringify(response.data, null, 2));
+      // Step 1: Create the generation task
+      let response;
+      try {
+        response = await axios.post(this.apiUrl, formData, {
+          headers: {
+            ...formData.getHeaders(),
+            'x-api-key': this.apiKey
+          },
+          timeout: 60000 // 60 seconds timeout
+        });
+      } catch (error) {
+        // If the request fails with specific parameters, try with basic fallback
+        if (axios.isAxiosError(error) && error.response?.status === 500) {
+          console.log('⚠️ First request failed, trying with fallback parameters...');
+          
+          const fallbackFormData = new FormData();
+          fallbackFormData.append('prompt', prompt);
+          fallbackFormData.append('model', 'imagen-pro');
+          fallbackFormData.append('aspect_ratio', '1:1'); // Use safe square format
+          fallbackFormData.append('style', 'Photorealistic');
+          
+          console.log('📤 Fallback request:', {
+            model: 'imagen-pro',
+            aspect_ratio: '1:1',
+            style: 'Photorealistic'
+          });
+          
+          response = await axios.post(this.apiUrl, fallbackFormData, {
+            headers: {
+              ...fallbackFormData.getHeaders(),
+              'x-api-key': this.apiKey
+            },
+            timeout: 60000
+          });
+          
+          console.log('✅ Fallback request succeeded');
+        } else {
+          throw error;
+        }
+      }
+
+      console.log('📥 GeminiGen response status:', response);
+      console.log('📥 GeminiGen response data:', JSON.stringify(response.data, null, 2));
       
-      if (response.data && response.data.data && response.data.data.task_id) {
-        const taskId = response.data.data.task_id;
-        console.log('🎯 Task created with ID:', taskId);
+      if (response.data && response.data.uuid) {
+        const taskId = response.data.uuid;
+        console.log('🎯 Task created with UUID:', taskId);
         
         // Step 2: Poll for completion
         const result = await this.pollTaskCompletion(taskId);
@@ -157,25 +224,37 @@ export class FreePikImageService {
           throw new Error('Task completed but no image URL found');
         }
       } else {
-        throw new Error('Invalid response from FreePik API - no task_id found');
+        throw new Error('Invalid response from GeminiGen API - no UUID found');
       }
 
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('❌ FreePik API Error:', error.response?.data || error.message);
-        throw new Error(`FreePik API failed: ${error.response?.data?.message || error.message}`);
+        console.error('❌ GeminiGen API Error Details:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          url: error.config?.url
+        });
+        
+        const errorMsg = error.response?.data?.message || 
+                        error.response?.data?.error || 
+                        error.response?.statusText || 
+                        error.message;
+        
+        throw new Error(`GeminiGen API failed: ${errorMsg}`);
       }
+      console.error('❌ Non-Axios error in generateImage:', error);
       throw error;
     }
   }
 
   /**
-   * Poll FreePik task until completion
+   * Poll GeminiGen task until completion
    */
-  private async pollTaskCompletion(taskId: string, maxAttempts: number = 30, interval: number = 2000): Promise<{ imageUrl: string } | null> {
+  private async pollTaskCompletion(taskId: string, maxAttempts: number = 30, interval: number = 3000): Promise<{ imageUrl: string } | null> {
     console.log('🔄 Starting to poll task:', taskId);
     
-    const statusUrl = `https://api.freepik.com/v1/ai/text-to-image/flux-dev/${taskId}`;
+    const statusUrl = `${this.statusApiUrl}/${taskId}`;
     
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
@@ -183,28 +262,28 @@ export class FreePikImageService {
         
         const response = await axios.get(statusUrl, {
           headers: {
-            'x-freepik-api-key': this.apiKey
+            'x-api-key': this.apiKey
           },
           timeout: 10000
         });
         
         console.log('📊 Task status response:', JSON.stringify(response.data, null, 2));
         
-        const task = response.data.data;
+        const task = response.data;
         const status = task.status;
         
-        if (status === 'COMPLETED') {
-          if (task.generated && task.generated.length > 0) {
-            const imageUrl = task.generated[0]; // URL is directly in the array, not in a .url property
+        if (status === 2) { // Status 2 means completed in GeminiGen
+          if (task.generated_image && task.generated_image.length > 0) {
+            const imageUrl = task.generated_image[0].image_url;
             console.log('🎉 Task completed! Image URL:', imageUrl);
             return { imageUrl };
           } else {
             throw new Error('Task completed but no generated images found');
           }
-        } else if (status === 'FAILED' || status === 'ERROR') {
-          throw new Error(`Task failed with status: ${status}`);
-        } else if (status === 'CREATED' || status === 'PROCESSING' || status === 'IN_PROGRESS') {
-          console.log(`⏳ Task status: ${status}, waiting ${interval}ms...`);
+        } else if (status === 3 || status === 4) { // Error/Failed status
+          throw new Error(`Task failed with status: ${status} - ${task.error_message || 'Unknown error'}`);
+        } else if (status === 0 || status === 1) { // Pending/Processing
+          console.log(`⏳ Task status: ${status === 0 ? 'PENDING' : 'PROCESSING'}, waiting ${interval}ms...`);
           await new Promise(resolve => setTimeout(resolve, interval));
           continue;
         } else {
@@ -227,7 +306,7 @@ export class FreePikImageService {
   }
 
   /**
-   * Download image from FreePik, save locally, and upload to S3
+   * Download image from GeminiGen, save locally, and upload to S3
    */
   private async downloadAndSaveImage(imageUrl: string, prompt: string): Promise<{ 
     filename: string; 
@@ -237,7 +316,7 @@ export class FreePikImageService {
     s3Key?: string;
   }> {
     try {
-      console.log('📥 Downloading image from FreePik...');
+      console.log('📥 Downloading image from GeminiGen...');
 
       // Download the image
       const response = await axios.get(imageUrl, {
@@ -255,7 +334,7 @@ export class FreePikImageService {
         .replace(/\s+/g, '-')
         .substring(0, 30);
       
-      const filename = `freepik_${timestamp}_${promptSlug}.jpg`;
+      const filename = `geminigen_${timestamp}_${promptSlug}.png`;
       const filepath = path.join(this.outputDir, filename);
       
       // Save image to file locally
@@ -277,7 +356,7 @@ export class FreePikImageService {
           s3Key = `images/branding/${filename}`;
           
           console.log('☁️  Uploading image to S3...');
-          const s3Result = await uploadImageToS3(s3Key, imageBuffer, 'image/jpeg');
+          const s3Result = await uploadImageToS3(s3Key, imageBuffer, 'image/png');
           s3Url = s3Result.publicUrl;
           
           console.log('✅ Image uploaded to S3:', s3Url);
@@ -350,95 +429,40 @@ export class FreePikImageService {
   }
 
   /**
-   * Get FreePik styling based on tone and style
+   * Get aspect ratio based on platform for GeminiGen API
    */
-  private getFreePikStyling(tone: string, style?: string) {
-    const styling: any = {
-      effects: {},
-      colors: []
-    };
-
-    // Map tone to effects with valid FreePik values
-    // Valid color values: 'softhue', 'b&w', 'goldglow', 'vibrant', 'coldneon'
-    // Valid lightning values: 'iridescent', 'dramatic', 'goldenhour', 'longexposure', 'indorlight', 'flash', 'neon'
-    switch (tone) {
-      case 'youth':
-        styling.effects.color = 'vibrant';
-        styling.effects.lightning = 'neon';
-        styling.colors.push({ color: '#FF6B6B', weight: 0.3 });
-        styling.colors.push({ color: '#4ECDC4', weight: 0.3 });
-        break;
-      case 'premium':
-        styling.effects.color = 'goldglow';
-        styling.effects.lightning = 'goldenhour';
-        styling.colors.push({ color: '#2C3E50', weight: 0.4 });
-        styling.colors.push({ color: '#F39C12', weight: 0.2 });
-        break;
-      case 'family':
-        styling.effects.color = 'softhue';
-        styling.effects.lightning = 'indorlight';
-        styling.colors.push({ color: '#E67E22', weight: 0.3 });
-        styling.colors.push({ color: '#F4D03F', weight: 0.2 });
-        break;
-      case 'health':
-        styling.effects.color = 'softhue';
-        styling.effects.lightning = 'flash';
-        styling.colors.push({ color: '#27AE60', weight: 0.4 });
-        styling.colors.push({ color: '#F7DC6F', weight: 0.2 });
-        break;
-      case 'traditional':
-        styling.effects.color = 'goldglow';
-        styling.effects.lightning = 'goldenhour';
-        styling.colors.push({ color: '#8B4513', weight: 0.3 });
-        styling.colors.push({ color: '#DAA520', weight: 0.2 });
-        break;
-      case 'professional':
-        styling.effects.color = 'b&w';
-        styling.effects.lightning = 'dramatic';
-        styling.colors.push({ color: '#2C3E50', weight: 0.4 });
-        styling.colors.push({ color: '#BDC3C7', weight: 0.2 });
-        break;
+  private getAspectRatio(platform: string): string {
+    switch (platform.toLowerCase()) {
+      case 'instagram':
+        return '1:1'; // Square format for Instagram posts
+      case 'linkedin':
+        return '16:9'; // Widescreen format for LinkedIn professional content
+      case 'email':
+        return '16:9'; // Widescreen banner format for email headers
+      case 'facebook':
+        return '16:9'; // Widescreen format for Facebook
+      case 'twitter':
+        return '16:9'; // Widescreen format for Twitter
       default:
-        styling.effects.color = 'softhue';
-        styling.effects.lightning = 'indorlight';
-        styling.colors.push({ color: '#34495E', weight: 0.3 });
+        return '1:1'; // Default to square
     }
-
-    // Adjust based on style with valid values
-    if (style === 'vibrant') {
-      styling.effects.color = 'vibrant';
-      styling.effects.lightning = 'neon';
-    } else if (style === 'minimalist') {
-      styling.effects.color = 'softhue';
-      styling.effects.lightning = 'indorlight';
-    } else if (style === 'premium') {
-      styling.effects.color = 'goldglow';
-      styling.effects.lightning = 'goldenhour';
-    } else if (style === 'playful') {
-      styling.effects.color = 'vibrant';
-      styling.effects.lightning = 'iridescent';
-    }
-
-    return styling;
   }
 
   /**
-   * Get aspect ratio based on platform
+   * Map frontend styles to GeminiGen artistic styles
    */
-  private getAspectRatio(platform: string): string {
-    switch (platform) {
-      case 'instagram':
-        return 'square_1_1'; // Square format for Instagram posts
-      case 'linkedin':
-        return 'widescreen_16_9'; // Professional widescreen format
-      case 'email':
-        return 'widescreen_16_9'; // Banner style for emails
-      case 'facebook':
-        return 'social_post_4_5'; // Facebook optimized format
-      case 'twitter':
-        return 'widescreen_16_9'; // Twitter header/image format
+  private mapStyleToGeminiGen(style: string): string {
+    switch (style.toLowerCase()) {
+      case 'minimalist':
+        return 'Stock Photo'; // Clean, professional, minimal look
+      case 'vibrant':
+        return 'Dynamic'; // Energetic, colorful, dynamic style
+      case 'premium':
+        return 'Portrait'; // Sophisticated, high-quality, premium feel
+      case 'playful':
+        return 'Creative'; // Fun, artistic, playful interpretation
       default:
-        return 'square_1_1'; // Default to square
+        return 'Photorealistic'; // Default fallback
     }
   }
 
@@ -459,7 +483,7 @@ export class FreePikImageService {
       }
 
       const files = fs.readdirSync(this.outputDir)
-        .filter(file => file.startsWith('freepik_') && (file.endsWith('.jpg') || file.endsWith('.png')))
+        .filter(file => file.startsWith('geminigen_') && (file.endsWith('.jpg') || file.endsWith('.png')))
         .map(file => {
           const filepath = path.join(this.outputDir, file);
           const stats = fs.statSync(filepath);
@@ -491,7 +515,7 @@ export class FreePikImageService {
    */
   public getServiceInfo() {
     return {
-      service: 'FreePik AI Image Generation',
+      service: 'GeminiGen AI Image Generation',
       apiKeyConfigured: !!this.apiKey,
       outputDirectory: this.outputDir,
       outputDirExists: fs.existsSync(this.outputDir),
@@ -619,7 +643,7 @@ Respond in this JSON format:
   }
 
   /**
-   * Build enhanced branding prompt for FreePik image generation
+   * Build enhanced branding prompt using the image-branding-prompts template with flavor emphasis
    */
   private buildBrandingPrompt(context: {
     productName: string;
@@ -632,67 +656,158 @@ Respond in this JSON format:
     caption: string;
     tagline: string;
   }): string {
-    const { productName, productDescription, platform, tone, style, caption, tagline } = context;
-
-    // CRITICAL: Start with exact product name and Britannia branding enforcement
-    let prompt = `Professional branding advertisement for Britannia "${productName}" (EXACT PRODUCT NAME: "${productName}" - DO NOT CHANGE OR MODIFY)`;
-    
-    // Add the core branding elements with strict naming
-    prompt += `, featuring the tagline "${tagline}" for Britannia's "${productName}"`;
-    prompt += `, with marketing message "${caption}" promoting Britannia's "${productName}"`;
-    
-    // Add product and brand elements with enforcement
-    prompt += `, prominent Britannia brand logo placement (COMPANY NAME: "Britannia" ONLY)`;
-    prompt += `, "${productName}" product packaging prominently displayed (USE EXACT NAME: "${productName}")`;
-    
-    // Tone-specific branding styles
-    const toneStyles = {
-      youth: 'vibrant colors, energetic composition, social media ready, trendy design elements, youthful energy, modern graphics',
-      family: 'warm color palette, family-friendly imagery, cozy atmosphere, togetherness feeling, homely comfort',
-      premium: 'elegant gold accents, sophisticated layout, luxury feel, refined typography, premium materials texture',
-      health: 'fresh green tones, natural elements, clean design, wellness imagery, organic feel',
-      traditional: 'classic color scheme, heritage elements, authentic design, timeless appeal, traditional patterns',
-      professional: 'corporate colors, clean layout, business-appropriate, professional typography, success themes'
+    // Create enhanced ImagePromptContext for the template
+    const promptContext: ImagePromptContext = {
+      productName: context.productName,
+      productDescription: this.enhanceProductDescription(context.productDescription, context.flavor),
+      productCategory: context.productCategory,
+      productHighlights: this.generateProductHighlights(context.flavor, context.tone),
+      platform: context.platform,
+      tone: context.tone,
+      flavor: context.flavor,
+      style: context.style,
+      productImages: [], // Can be empty for now
+      referenceImages: [] // Can be empty for now
     };
 
-    // Platform-specific optimizations
-    const platformSpecs = {
-      instagram: 'square format 1:1, Instagram-optimized, social media ready, eye-catching colors',
-      linkedin: 'professional layout, business-appropriate, corporate design, rectangular format',
-      email: 'banner style, clear call-to-action focus, email-optimized layout',
-      facebook: 'social media optimized, shareable design, engaging visuals',
-      twitter: 'compact design, Twitter-ready, viral potential layout'
-    };
-
-    // Style descriptors
-    const styleMap = {
-      minimalist: 'clean minimal design, simple composition, plenty of white space, focused layout',
-      vibrant: 'bright energetic colors, dynamic composition, high contrast, bold design',
-      premium: 'luxury aesthetic, sophisticated color palette, elegant typography, high-end feel',
-      playful: 'fun dynamic elements, creative composition, playful typography, engaging design'
-    };
-
-    prompt += `, ${toneStyles[tone as keyof typeof toneStyles] || 'appealing design'}`;
-    prompt += `, ${styleMap[style as keyof typeof styleMap] || 'attractive layout'}`;
-    prompt += `, ${platformSpecs[platform as keyof typeof platformSpecs] || 'optimized format'}`;
+    // Use the template to build the enhanced prompt
+    let basePrompt = IMAGE_BRANDING_PROMPT_TEMPLATE.buildImagePrompt(promptContext);
     
-    // Add product description if available with exact naming
-    if (productDescription) {
-      prompt += `, highlighting "${productName}" features: ${productDescription}`;
+    // Add platform-specific enhancements
+    basePrompt += this.addPlatformSpecificPromptEnhancements(context.platform, context.style);
+    
+    // Add flavor-specific visual elements if flavor is provided
+    if (context.flavor) {
+      basePrompt += this.addFlavorSpecificPromptEnhancements(context.flavor, context.productName);
     }
-
-    // Add quality and branding elements with strict enforcement
-    prompt += `, high-quality commercial photography for Britannia's "${productName}"`;
-    prompt += `, professional advertising design featuring "${productName}" by Britannia`;
-    prompt += `, brand identity focused on Britannia "${productName}", marketing campaign style`;
-    prompt += `, studio lighting, clean background, product hero shot of "${productName}"`;
     
-    // Final branding touch with enforcement
-    prompt += `, Britannia brand heritage, Indian premium food brand aesthetic`;
-    prompt += `, MUST DISPLAY: Product name exactly as "${productName}", Company name as "Britannia" only`;
-
-    return prompt;
+    // Add final quality and brand consistency requirements
+    basePrompt += this.addFinalPromptEnhancements(context.productName, context.tagline);
+    
+    return basePrompt;
+  }
+  
+  /**
+   * Enhance product description with flavor information
+   */
+  private enhanceProductDescription(description?: string, flavor?: string): string {
+    let enhanced = description || 'Premium Britannia biscuit product';
+    
+    if (flavor) {
+      enhanced += ` featuring delicious ${flavor.toLowerCase()} flavor`;
+    }
+    
+    return enhanced;
+  }
+  
+  /**
+   * Generate product highlights based on flavor and tone
+   */
+  private generateProductHighlights(flavor?: string, tone?: string): string[] {
+    const highlights = ['Premium quality', 'Trusted Britannia brand'];
+    
+    if (flavor) {
+      highlights.push(`Rich ${flavor.toLowerCase()} taste`);
+      highlights.push(`Authentic ${flavor.toLowerCase()} flavor`);
+    }
+    
+    if (tone === 'family') {
+      highlights.push('Perfect for sharing', 'Family favorite');
+    } else if (tone === 'premium') {
+      highlights.push('Luxurious experience', 'Premium ingredients');
+    } else if (tone === 'youth') {
+      highlights.push('Trendy snack', 'Instagram-worthy');
+    } else if (tone === 'health') {
+      highlights.push('Wholesome goodness', 'Natural ingredients');
+    }
+    
+    return highlights;
+  }
+  
+  /**
+   * Add platform-specific prompt enhancements
+   */
+  private addPlatformSpecificPromptEnhancements(platform: string, style: string): string {
+    let enhancement = '\n\n## PLATFORM OPTIMIZATION:\n';
+    
+    switch (platform.toLowerCase()) {
+      case 'instagram':
+        enhancement += '- Create scroll-stopping visual appeal for Instagram feed\n';
+        enhancement += '- Use vibrant, high-contrast colors that pop on mobile screens\n';
+        enhancement += '- Include subtle Instagram-style visual elements\n';
+        enhancement += '- Optimize for square format viewing on mobile devices\n';
+        break;
+      case 'linkedin':
+        enhancement += '- Professional, corporate-appropriate aesthetic\n';
+        enhancement += '- Clean, business-friendly color palette\n';
+        enhancement += '- Sophisticated typography and layout\n';
+        enhancement += '- Optimize for professional networking context\n';
+        break;
+      case 'email':
+        enhancement += '- Email-header optimized design\n';
+        enhancement += '- Clear, readable text even at smaller sizes\n';
+        enhancement += '- Strong visual hierarchy for quick scanning\n';
+        enhancement += '- Call-to-action friendly layout\n';
+        break;
+    }
+    
+    return enhancement;
+  }
+  
+  /**
+   * Add flavor-specific visual enhancements to prompt
+   */
+  private addFlavorSpecificPromptEnhancements(flavor: string, productName: string): string {
+    let enhancement = `\n\n## FLAVOR VISUAL EMPHASIS (${flavor.toUpperCase()}):\n`;
+    
+    const flavorLower = flavor.toLowerCase();
+    
+    // Color associations for different flavors
+    if (flavorLower.includes('chocolate') || flavorLower.includes('choco')) {
+      enhancement += '- Rich brown and golden color palette\n';
+      enhancement += '- Warm, indulgent visual atmosphere\n';
+      enhancement += '- Chocolate-inspired background elements\n';
+    } else if (flavorLower.includes('strawberry') || flavorLower.includes('berry')) {
+      enhancement += '- Fresh pink and red color accents\n';
+      enhancement += '- Berry-inspired natural elements\n';
+      enhancement += '- Vibrant, fruity visual mood\n';
+    } else if (flavorLower.includes('vanilla')) {
+      enhancement += '- Cream and soft beige color tones\n';
+      enhancement += '- Elegant, refined visual presentation\n';
+      enhancement += '- Smooth, luxurious texture emphasis\n';
+    } else if (flavorLower.includes('butter')) {
+      enhancement += '- Golden yellow and warm cream colors\n';
+      enhancement += '- Rich, smooth texture visualization\n';
+      enhancement += '- Premium, indulgent atmosphere\n';
+    } else if (flavorLower.includes('coconut')) {
+      enhancement += '- White and tropical color palette\n';
+      enhancement += '- Fresh, exotic visual elements\n';
+      enhancement += '- Natural, tropical atmosphere\n';
+    } else {
+      enhancement += `- Colors and elements that evoke ${flavor} characteristics\n`;
+      enhancement += `- Visual cues that represent ${flavor} authenticity\n`;
+    }
+    
+    enhancement += `- Prominent display of "${productName}" with ${flavor} flavor emphasis\n`;
+    enhancement += `- Visual storytelling that highlights the ${flavor} experience\n`;
+    
+    return enhancement;
+  }
+  
+  /**
+   * Add final prompt enhancements for quality and consistency
+   */
+  private addFinalPromptEnhancements(productName: string, tagline: string): string {
+    return `\n\n## FINAL REQUIREMENTS:\n` +
+           `- Product name MUST appear exactly as: "${productName}"\n` +
+           `- Company name MUST appear as: "Britannia"\n` +
+           `- Include tagline: "${tagline}"\n` +
+           `- Commercial photography quality with professional lighting\n` +
+           `- High resolution, print-ready quality\n` +
+           `- Brand consistency with Britannia's premium food brand identity\n` +
+           `- Visual appeal that drives engagement and purchase intent\n` +
+           `- Culturally appropriate for Indian market preferences\n`;
   }
 }
 
-export const freePikImageService = FreePikImageService.getInstance();
+export const geminiGenImageService = GeminiGenImageService.getInstance();

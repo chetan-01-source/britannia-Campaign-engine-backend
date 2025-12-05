@@ -22,7 +22,8 @@ export interface ImageBrandingResponse {
       dimensions?: string;
       format: string;
       generatedAt: string;
-      freepikRequestId?: string; // FreePik specific field
+      freepikRequestId?: string; // FreePik specific field (legacy)
+      geminiGenRequestId?: string; // GeminiGen specific field
       s3Key?: string; // S3 storage key
       localPath?: string; // Local file path
     };

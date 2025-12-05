@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { freePikImageService } from '../services/freepik-image.service';
+import { geminiGenImageService } from '../services/gemini-genai.service';
 import { ImageBrandingRequest } from '../types/image-branding.types';
 
 export class ImageBrandingController {
@@ -9,13 +9,13 @@ export class ImageBrandingController {
    */
   public static async generateImage(req: Request, res: Response): Promise<void> {
     try {
-      // Check if FreePik service is available
-      if (!freePikImageService.isAvailable()) {
+      // Check if GeminiGen service is available
+      if (!geminiGenImageService.isAvailable()) {
         res.status(503).json({
           success: false,
           error: {
             code: 'SERVICE_UNAVAILABLE',
-            message: 'FreePik API service not available. API key not configured.'
+            message: 'GeminiGen API service not available. API key not configured.'
           }
         });
         return;
@@ -76,7 +76,7 @@ export class ImageBrandingController {
         }
       }
 
-      console.log('🎨 FreePik image branding request:', {
+      console.log('🎨 GeminiGen image branding request:', {
         productName,
         platform,
         tone,
@@ -92,16 +92,16 @@ export class ImageBrandingController {
         style: style?.toLowerCase() || 'minimalist'
       };
 
-      console.log('🎨 FreePik image branding request:', request);
+      console.log('🎨 GeminiGen image branding request:', request);
 
-      // Generate the branding image using FreePik AI
-      const result = await freePikImageService.generateBrandingImage(request);
+      // Generate the branding image using GeminiGen AI
+      const result = await geminiGenImageService.generateBrandingImage(request);
 
       if (result.success) {
         res.status(200).json({
           success: true,
           data: result.data,
-          message: 'Image branding generated successfully using FreePik AI'
+          message: 'Image branding generated successfully using GeminiGen AI'
         });
       } else {
         res.status(500).json({
@@ -179,21 +179,21 @@ export class ImageBrandingController {
    */
   public static async getStatus(req: Request, res: Response): Promise<void> {
     try {
-      const isAvailable = freePikImageService.isAvailable();
-      const serviceInfo = freePikImageService.getServiceInfo();
+      const isAvailable = geminiGenImageService.isAvailable();
+      const serviceInfo = geminiGenImageService.getServiceInfo();
       
       res.status(200).json({
         success: true,
         data: {
           available: isAvailable,
           service: serviceInfo.service,
-          model: 'FreePik AI FLUX-DEV',
+          model: 'GeminiGen Imagen-Pro',
           apiKeyConfigured: serviceInfo.apiKeyConfigured,
           outputDirectory: serviceInfo.outputDirectory,
           totalSavedImages: serviceInfo.totalSavedImages,
           capabilities: [
             'Professional AI image generation',
-            'FreePik FLUX-DEV model', 
+            'GeminiGen Imagen-Pro model', 
             'Platform-specific optimizations',
             'Multi-tone branding support',
             'Commercial-grade image quality'
@@ -238,7 +238,7 @@ export class ImageBrandingController {
         return;
       }
 
-      const filepath = freePikImageService.getSavedImagePath(filename);
+      const filepath = geminiGenImageService.getSavedImagePath(filename);
       
       if (!filepath) {
         res.status(404).json({
@@ -278,7 +278,7 @@ export class ImageBrandingController {
    */
   public static async listImages(req: Request, res: Response): Promise<void> {
     try {
-      const images = freePikImageService.getSavedImages();
+      const images = geminiGenImageService.getSavedImages();
       
       res.status(200).json({
         success: true,
