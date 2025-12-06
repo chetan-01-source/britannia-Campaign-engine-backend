@@ -249,16 +249,34 @@ export class GeminiGenImageService {
   }
 
   /**
-   * Poll GeminiGen task until completion
+   * Poll GeminiGen task until completion - Using 38-second optimized strategy
+   * Based on user feedback: wait 38 seconds then check, reducing API calls significantly
    */
-  private async pollTaskCompletion(taskId: string, maxAttempts: number = 30, interval: number = 15000): Promise<{ imageUrl: string } | null> {
-    console.log('🔄 Starting to poll task:', taskId);
+  private async pollTaskCompletion(taskId: string): Promise<{ imageUrl: string } | null> {
+    console.log('🔄 Starting 38-second optimized polling for task:', taskId);
     
     const statusUrl = `${this.statusApiUrl}/${taskId}`;
     
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // New strategy: 38-second intervals with fewer total requests
+    // Based on observation that images typically complete around 38 seconds
+    const pollingSchedule = [
+      { attempt: 1, delay: 0 },       // Immediate first check
+      { attempt: 2, delay: 38000 },   // 38s - Primary check point
+      { attempt: 3, delay: 25000 },   // +25s (63s total) - Extended wait
+      { attempt: 4, delay: 30000 },   // +30s (93s total) - Final attempt
+    ];
+    
+    let totalTime = 0;
+    
+    for (const { attempt, delay } of pollingSchedule) {
       try {
-        console.log(`🔍 Polling attempt ${attempt}/${maxAttempts}...`);
+        if (delay > 0) {
+          console.log(`⏳ Waiting ${delay/1000}s before next poll (total elapsed: ${Math.floor(totalTime/1000)}s)...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          totalTime += delay;
+        }
+        
+        console.log(`🔍 Polling attempt ${attempt}/4 (after ${Math.floor(totalTime/1000)}s)...`);
         
         const response = await axios.get(statusUrl, {
           headers: {
@@ -275,7 +293,7 @@ export class GeminiGenImageService {
         if (status === 2) { // Status 2 means completed in GeminiGen
           if (task.generated_image && task.generated_image.length > 0) {
             const imageUrl = task.generated_image[0].image_url;
-            console.log('🎉 Task completed! Image URL:', imageUrl);
+            console.log(`🎉 Task completed in ${attempt} attempts (${Math.floor(totalTime/1000)}s)! Image URL:`, imageUrl);
             return { imageUrl };
           } else {
             throw new Error('Task completed but no generated images found');
@@ -283,26 +301,32 @@ export class GeminiGenImageService {
         } else if (status === 3 || status === 4) { // Error/Failed status
           throw new Error(`Task failed with status: ${status} - ${task.error_message || 'Unknown error'}`);
         } else if (status === 0 || status === 1) { // Pending/Processing
-          console.log(`⏳ Task status: ${status === 0 ? 'PENDING' : 'PROCESSING'}, waiting ${interval}ms...`);
-          await new Promise(resolve => setTimeout(resolve, interval));
+          const statusText = status === 0 ? 'PENDING' : 'PROCESSING';
+          console.log(`⏳ Task status: ${statusText}${attempt < pollingSchedule.length ? ', continuing to next interval...' : ', final attempt reached'}`);
+          
+          // Continue to next attempt if not the last one
+          if (attempt >= pollingSchedule.length) {
+            throw new Error(`Task still ${statusText} after ${Math.floor(totalTime/1000)}s - maximum wait time exceeded`);
+          }
           continue;
         } else {
-          console.log(`❓ Unknown status: ${status}, continuing to poll...`);
-          await new Promise(resolve => setTimeout(resolve, interval));
+          console.log(`❓ Unknown status: ${status}${attempt < pollingSchedule.length ? ', continuing...' : ', giving up'}`);
+          if (attempt >= pollingSchedule.length) {
+            throw new Error(`Task has unknown status ${status} after ${Math.floor(totalTime/1000)}s`);
+          }
           continue;
         }
         
       } catch (error) {
-        if (attempt === maxAttempts) {
-          throw new Error(`Polling failed after ${maxAttempts} attempts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        if (attempt === pollingSchedule.length) {
+          throw new Error(`Polling failed after ${pollingSchedule.length} attempts (${Math.floor(totalTime/1000)}s total): ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
         
-        console.log(`⚠️ Polling attempt ${attempt} failed, retrying:`, error instanceof Error ? error.message : 'Unknown error');
-        await new Promise(resolve => setTimeout(resolve, interval));
+        console.log(`⚠️ Polling attempt ${attempt} failed, continuing to next interval:`, error instanceof Error ? error.message : 'Unknown error');
       }
     }
     
-    throw new Error(`Task did not complete within ${maxAttempts * interval / 1000} seconds`);
+    throw new Error(`Task did not complete within ${Math.floor(totalTime/1000)} seconds (${pollingSchedule.length} attempts)`);
   }
 
   /**

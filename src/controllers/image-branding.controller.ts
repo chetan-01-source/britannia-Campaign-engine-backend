@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { geminiGenImageService } from '../services/gemini-genai.service';
+import { rateLimitedImageService } from '../services/rate-limited-image.service';
+import { geminiGenImageService } from '../services/gemini-genai.service'; // For file operations
 import { ImageBrandingRequest } from '../types/image-branding.types';
 
 export class ImageBrandingController {
@@ -9,8 +10,8 @@ export class ImageBrandingController {
    */
   public static async generateImage(req: Request, res: Response): Promise<void> {
     try {
-      // Check if GeminiGen service is available
-      if (!geminiGenImageService.isAvailable()) {
+      // Check if rate-limited image service is available
+      if (!rateLimitedImageService.isAvailable()) {
         res.status(503).json({
           success: false,
           error: {
@@ -19,6 +20,15 @@ export class ImageBrandingController {
           }
         });
         return;
+      }
+
+      // Log current rate limit status
+      console.log('📊 Image Branding Controller - Rate limit status:');
+      rateLimitedImageService.logRateLimitStatus();
+      
+      const estimatedWait = rateLimitedImageService.getEstimatedWaitTime();
+      if (estimatedWait > 5000) { // If wait is more than 5 seconds
+        console.log(`⚠️ High wait time detected: ${Math.ceil(estimatedWait / 1000)}s`);
       }
 
       // Validate request body
@@ -95,7 +105,12 @@ export class ImageBrandingController {
       console.log('🎨 GeminiGen image branding request:', request);
 
       // Generate the branding image using GeminiGen AI
-      const result = await geminiGenImageService.generateBrandingImage(request);
+      console.log('🎨 Image Branding Controller - Making rate-limited generation request...');
+      const result = await rateLimitedImageService.generateBrandingImage(request);
+      
+      // Log post-generation rate limit status
+      console.log('📊 Rate limit status after generation:');
+      rateLimitedImageService.logRateLimitStatus();
 
       if (result.success) {
         res.status(200).json({

@@ -5,6 +5,7 @@ import { embeddingRoutes } from './embedding.routes';
 import { productRoutes } from './product.routes';
 import { brandingRoutes } from './branding.routes';
 import { imageBrandingRoutes } from './image-branding.routes';
+import { rateLimitRoutes } from './rate-limit.routes';
 import comprehensiveBrandingRoutes from './comprehensive-branding.routes';
 
 const router = Router();
@@ -16,6 +17,7 @@ router.use('/api/embeddings', embeddingRoutes);
 router.use('/api/products', productRoutes);
 router.use('/api/branding', comprehensiveBrandingRoutes); // Use comprehensive branding instead
 router.use('/api/image-branding', imageBrandingRoutes);
+router.use('/api/rate-limit', rateLimitRoutes); // Rate limit monitoring
 
 
 // Root endpoint
@@ -46,15 +48,19 @@ router.get('/', (req, res) => {
         generate: "/api/embeddings/generate"
       },
       branding: {
-        generate: "/api/branding/generate - Comprehensive branding with AI caption + FreePik image + MongoDB storage",
+        generate: "/api/branding/generate - Comprehensive branding with AI caption + Rate-Limited GeminiGen image + MongoDB storage",
         list: "/api/branding/list?limit=50",
         byId: "/api/branding/:id"
       },
       imageBranding: {
-        generate: "/api/image-branding/generate",
+        generate: "/api/image-branding/generate - Rate-limited image generation",
         options: "/api/image-branding/options", 
         status: "/api/image-branding/status"
       },
+      rateLimit: {
+        status: "/api/rate-limit/status - Monitor API rate limits and queue",
+        clearQueue: "/api/rate-limit/clear-queue - Emergency queue clearing"
+      }
     }
   });
 });

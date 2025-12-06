@@ -1,7 +1,7 @@
 import { genAI, isGeminiAvailable } from '../config/gemini';
 import { embeddingService } from './embedding.service';
 import { pineconeService } from './pinecone.service';
-import { geminiGenImageService } from './gemini-genai.service';
+import { rateLimitedImageService } from './rate-limited-image.service';
 import { BrandingRequest, BrandingResponse, ProductContext } from '../types/branding.types';
 import { ImageBrandingRequest } from '../types/image-branding.types';
 import { buildBrandingPrompt, BrandingPromptRequest } from '../templates';
@@ -94,7 +94,21 @@ export class BrandingService {
       };
       
       console.log('🎨 Image branding request (from branding service):', imageRequest);
-      const imageResult = await geminiGenImageService.generateBrandingImage(imageRequest);
+      
+      // Log current rate limit status before making request
+      console.log('📊 Rate limit status before image generation:');
+      rateLimitedImageService.logRateLimitStatus();
+      
+      const estimatedWait = rateLimitedImageService.getEstimatedWaitTime();
+      if (estimatedWait > 0) {
+        console.log(`⏳ Estimated wait time: ${Math.ceil(estimatedWait / 1000)}s`);
+      }
+      
+      const imageResult = await rateLimitedImageService.generateBrandingImage(imageRequest);
+      
+      // Log rate limit status after request
+      console.log('📊 Rate limit status after image generation:');
+      rateLimitedImageService.logRateLimitStatus();
 
       if (!imageResult.success || !imageResult.data) {
         throw new Error(`Image generation failed: ${imageResult.error}`);
@@ -530,7 +544,14 @@ export class BrandingService {
    * Check if branding service is available
    */
   public isAvailable(): boolean {
-    return isGeminiAvailable() && geminiGenImageService.isAvailable();
+    return isGeminiAvailable() && rateLimitedImageService.isAvailable();
+  }
+
+  /**
+   * Get rate limit status for monitoring
+   */
+  public getRateLimitStatus() {
+    return rateLimitedImageService.getRateLimitStatus();
   }
 }
 
