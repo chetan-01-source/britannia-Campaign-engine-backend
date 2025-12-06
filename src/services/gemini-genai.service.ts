@@ -251,7 +251,7 @@ export class GeminiGenImageService {
   /**
    * Poll GeminiGen task until completion
    */
-  private async pollTaskCompletion(taskId: string, maxAttempts: number = 30, interval: number = 3000): Promise<{ imageUrl: string } | null> {
+  private async pollTaskCompletion(taskId: string, maxAttempts: number = 30, interval: number = 15000): Promise<{ imageUrl: string } | null> {
     console.log('🔄 Starting to poll task:', taskId);
     
     const statusUrl = `${this.statusApiUrl}/${taskId}`;
