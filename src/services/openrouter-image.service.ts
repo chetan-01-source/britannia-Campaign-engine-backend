@@ -8,17 +8,16 @@ import { generateGeminiContent } from '../config/gemini';
 import { uploadImageToS3, isS3Available } from '../utils/s3';
 import { IMAGE_BRANDING_PROMPT_TEMPLATE } from '../templates/image-branding-prompts';
 
-export class GeminiGenImageService {
-  private static instance: GeminiGenImageService;
+export class OpenRouterImageService {
+  private static instance: OpenRouterImageService;
   private apiKey: string;
-  private apiUrl: string = 'https://api.geminigen.ai/uapi/v1/generate_image';
-  private statusApiUrl: string = 'https://api.geminigen.ai/uapi/v1/history';
+  private apiUrl: string = 'https://openrouter.ai/api/v1/chat/completions';
   private outputDir: string;
 
   private constructor() {
-    this.apiKey = process.env.GENGEMINI_API_KEY || '';
+    this.apiKey = process.env.OPENROUTER_API_KEY || '';
     this.outputDir = path.join(__dirname, '../../generated-images');
-    
+
     // Create output directory if it doesn't exist
     if (!fs.existsSync(this.outputDir)) {
       fs.mkdirSync(this.outputDir, { recursive: true });
@@ -26,28 +25,25 @@ export class GeminiGenImageService {
     }
 
     if (!this.apiKey) {
-      console.warn('⚠️ GENGEMINI_API_KEY not found in environment variables');
-    } else if (this.apiKey.startsWith('tts-')) {
-      console.error('❌ GENGEMINI_API_KEY appears to be for text-to-speech service, not image generation!');
-      console.error('❌ Please check if you have the correct API key for GeminiGen image generation');
+      console.warn('⚠️ OPENROUTER_API_KEY not found in environment variables');
     } else {
-      console.log('✅ GeminiGen API key configured');
+      console.log('✅ OpenRouter API key configured');
     }
   }
 
-  public static getInstance(): GeminiGenImageService {
-    if (!GeminiGenImageService.instance) {
-      GeminiGenImageService.instance = new GeminiGenImageService();
+  public static getInstance(): OpenRouterImageService {
+    if (!OpenRouterImageService.instance) {
+      OpenRouterImageService.instance = new OpenRouterImageService();
     }
-    return GeminiGenImageService.instance;
+    return OpenRouterImageService.instance;
   }
 
   /**
-   * Generate branding image using GeminiGen API
+   * Generate branding image using OpenRouter API
    */
   public async generateBrandingImage(request: ImageBrandingRequest): Promise<ImageBrandingResponse> {
     try {
-      console.log('🎨 Starting GeminiGen image generation for:', request.productName);
+      console.log('🎨 Starting OpenRouter image generation for:', request.productName);
       console.log('📋 Request details:', {
         productName: request.productName,
         platform: request.platform,
@@ -57,7 +53,7 @@ export class GeminiGenImageService {
       });
 
       if (!this.apiKey) {
-        throw new Error('GeminiGen API key not configured');
+        throw new Error('OpenRouter API key not configured');
       }
 
       // Get product data from database
@@ -79,7 +75,7 @@ export class GeminiGenImageService {
         brandingContent = this.getFallbackBrandingContent(productData, request);
       }
 
-      // Step 3: Build optimized prompt for GeminiGen branding image
+      // Step 3: Build optimized prompt for branding image
       const prompt = this.buildBrandingPrompt({
         productName: productData.name,
         productDescription: productData.description,
@@ -93,16 +89,16 @@ export class GeminiGenImageService {
       });
 
       console.log('📝 Generated prompt:', prompt.substring(0, 200) + '...');
-      console.log('🔑 API Key format:', this.apiKey ? 
-        `${this.apiKey.substring(0, 6)}...${this.apiKey.substring(this.apiKey.length - 4)}` : 
+      console.log('🔑 API Key format:', this.apiKey ?
+        `${this.apiKey.substring(0, 6)}...${this.apiKey.substring(this.apiKey.length - 4)}` :
         'NOT SET');
 
-      // Generate image using GeminiGen API
+      // Generate image using OpenRouter API
       const imageResult = await this.generateImage(prompt, request);
-        console.log('✅ Image generated, URL:', imageResult);
-      
-      // Download and save the image locally
-      const savedImage = await this.downloadAndSaveImage(imageResult.imageUrl, prompt);
+      console.log('✅ Image generated successfully');
+
+      // Save the image locally and upload to S3
+      const savedImage = await this.saveImage(imageResult.base64DataUrl, prompt);
 
       return {
         success: true,
@@ -119,7 +115,7 @@ export class GeminiGenImageService {
             format: 'base64_png',
             generatedAt: new Date().toISOString(),
             dimensions: '1024x1024',
-            geminiGenRequestId: imageResult.requestId,
+            openRouterRequestId: imageResult.requestId,
             s3Key: savedImage.s3Key,
             localPath: savedImage.filepath
           }
@@ -129,7 +125,7 @@ export class GeminiGenImageService {
       };
 
     } catch (error) {
-      console.error('❌ GeminiGen image generation failed:', error);
+      console.error('❌ OpenRouter image generation failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -138,110 +134,123 @@ export class GeminiGenImageService {
   }
 
   /**
-   * Generate image using GeminiGen API
+   * Generate image using OpenRouter API with google/gemini-3-pro-image-preview
    */
-  private async generateImage(prompt: string, request: ImageBrandingRequest): Promise<{ imageUrl: string; requestId: string }> {
+  private async generateImage(prompt: string, request: ImageBrandingRequest): Promise<{ base64DataUrl: string; requestId: string }> {
     try {
-      console.log('🚀 Calling GeminiGen API...');
+      console.log('🚀 Calling OpenRouter API...');
 
-      // Create FormData for multipart/form-data request
-      const FormData = require('form-data');
-      const formData = new FormData();
-      
       const aspectRatio = this.getAspectRatio(request.platform);
-      const mappedStyle = this.mapStyleToGeminiGen(request.style || 'minimalist');
-      
-      formData.append('prompt', prompt);
-      formData.append('model', 'imagen-pro');
-      formData.append('aspect_ratio', aspectRatio);
-      formData.append('style', mappedStyle);
 
-      console.log('📤 GeminiGen request details:', {
+      const requestBody = {
+        model: 'google/gemini-3-pro-image-preview',
+        messages: [{ role: 'user', content: prompt }],
+        modalities: ['image', 'text'],
+        image_config: {
+          aspect_ratio: aspectRatio,
+          image_size: '4K'
+        }
+      };
+
+      console.log('📤 OpenRouter request details:', {
         promptLength: prompt.length,
         promptStart: prompt.substring(0, 200) + '...',
-        model: 'imagen-pro',
+        model: 'google/gemini-3-pro-image-preview',
         aspect_ratio: aspectRatio,
-        style: mappedStyle,
         requestPlatform: request.platform,
         requestStyle: request.style
       });
 
-      // Step 1: Create the generation task
       let response;
       try {
-        response = await axios.post(this.apiUrl, formData, {
+        response = await axios.post(this.apiUrl, requestBody, {
           headers: {
-            ...formData.getHeaders(),
-            'x-api-key': this.apiKey
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
           },
-          timeout: 60000 // 60 seconds timeout
+          timeout: 120000, // 120 seconds - synchronous generation can take 30-90s
+          maxContentLength: 50 * 1024 * 1024, // 50MB max response size for base64 images
+          maxBodyLength: 50 * 1024 * 1024
         });
       } catch (error) {
-        // If the request fails with specific parameters, try with basic fallback
+        // If the request fails, try with fallback parameters
         if (axios.isAxiosError(error) && error.response?.status === 500) {
           console.log('⚠️ First request failed, trying with fallback parameters...');
-          
-          const fallbackFormData = new FormData();
-          fallbackFormData.append('prompt', prompt);
-          fallbackFormData.append('model', 'imagen-pro');
-          fallbackFormData.append('aspect_ratio', '1:1'); // Use safe square format
-          fallbackFormData.append('style', 'Photorealistic');
-          
-          console.log('📤 Fallback request:', {
-            model: 'imagen-pro',
-            aspect_ratio: '1:1',
-            style: 'Photorealistic'
-          });
-          
-          response = await axios.post(this.apiUrl, fallbackFormData, {
+
+          const fallbackBody = {
+            ...requestBody,
+            image_config: {
+              aspect_ratio: '1:1',
+              image_size: '4K'
+            }
+          };
+
+          console.log('📤 Fallback request with aspect_ratio: 1:1');
+
+          response = await axios.post(this.apiUrl, fallbackBody, {
             headers: {
-              ...fallbackFormData.getHeaders(),
-              'x-api-key': this.apiKey
+              'Authorization': `Bearer ${this.apiKey}`,
+              'Content-Type': 'application/json'
             },
-            timeout: 60000
+            timeout: 120000,
+            maxContentLength: 50 * 1024 * 1024,
+            maxBodyLength: 50 * 1024 * 1024
           });
-          
+
           console.log('✅ Fallback request succeeded');
         } else {
           throw error;
         }
       }
 
-      console.log('📥 GeminiGen response status:', response);
-      console.log('📥 GeminiGen response data:', JSON.stringify(response.data, null, 2));
-      
-      if (response.data && response.data.uuid) {
-        const taskId = response.data.uuid;
-        console.log('🎯 Task created with UUID:', taskId);
-        
-        // Step 2: Poll for completion
-        const result = await this.pollTaskCompletion(taskId);
-        
-        if (result && result.imageUrl) {
-          console.log('✅ Image generated successfully:', result.imageUrl);
-          return { imageUrl: result.imageUrl, requestId: taskId };
-        } else {
-          throw new Error('Task completed but no image URL found');
-        }
-      } else {
-        throw new Error('Invalid response from GeminiGen API - no UUID found');
+      console.log('📥 OpenRouter response status:', response.status);
+
+      // Extract image from OpenRouter chat completion response
+      const choices = response.data?.choices;
+      if (!choices || choices.length === 0) {
+        throw new Error('No choices returned from OpenRouter API');
       }
+
+      const message = choices[0].message;
+      const requestId = response.data?.id || 'unknown';
+
+      // OpenRouter returns images in message.images array
+      if (message?.images && message.images.length > 0) {
+        const base64DataUrl = message.images[0].image_url.url;
+        console.log('✅ Image received from OpenRouter, data URL length:', base64DataUrl.length);
+        return { base64DataUrl, requestId };
+      }
+
+      // Fallback: check if image is in content array (some models return it differently)
+      if (Array.isArray(message?.content)) {
+        const imageContent = message.content.find((c: any) => c.type === 'image_url' || c.type === 'image');
+        if (imageContent) {
+          const base64DataUrl = imageContent.image_url?.url || imageContent.url;
+          if (base64DataUrl) {
+            console.log('✅ Image found in content array');
+            return { base64DataUrl, requestId };
+          }
+        }
+      }
+
+      throw new Error('No image found in OpenRouter API response');
 
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('❌ GeminiGen API Error Details:', {
+        console.error('❌ OpenRouter API Error Details:', {
           status: error.response?.status,
           statusText: error.response?.statusText,
           data: error.response?.data,
           url: error.config?.url
         });
-        
-        const errorMsg = error.response?.data?.message || 
-                        error.response?.data?.error || 
-                        error.response?.statusText || 
+
+        const errorMsg = error.response?.data?.error?.message ||
+                        error.response?.data?.message ||
+                        error.response?.data?.error ||
+                        error.response?.statusText ||
                         error.message;
-        
-        throw new Error(`GeminiGen API failed: ${errorMsg}`);
+
+        throw new Error(`OpenRouter API failed: ${errorMsg}`);
       }
       console.error('❌ Non-Axios error in generateImage:', error);
       throw error;
@@ -249,107 +258,39 @@ export class GeminiGenImageService {
   }
 
   /**
-   * Poll GeminiGen task until completion - Using 38-second optimized strategy
-   * Based on user feedback: wait 38 seconds then check, reducing API calls significantly
+   * Save base64 data URL image locally and upload to S3
    */
-  private async pollTaskCompletion(taskId: string): Promise<{ imageUrl: string } | null> {
-    console.log('🔄 Starting 38-second optimized polling for task:', taskId);
-    
-    const statusUrl = `${this.statusApiUrl}/${taskId}`;
-    
-    // New strategy: 38-second intervals with fewer total requests
-    // Based on observation that images typically complete around 38 seconds
-    const pollingSchedule = [
-      { attempt: 1, delay: 0 },       // Immediate first check
-      { attempt: 2, delay: 38000 },   // 38s - Primary check point
-      { attempt: 3, delay: 25000 },   // +25s (63s total) - Extended wait
-      { attempt: 4, delay: 30000 },   // +30s (93s total) - Final attempt
-    ];
-    
-    let totalTime = 0;
-    
-    for (const { attempt, delay } of pollingSchedule) {
-      try {
-        if (delay > 0) {
-          console.log(`⏳ Waiting ${delay/1000}s before next poll (total elapsed: ${Math.floor(totalTime/1000)}s)...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          totalTime += delay;
-        }
-        
-        console.log(`🔍 Polling attempt ${attempt}/4 (after ${Math.floor(totalTime/1000)}s)...`);
-        
-        const response = await axios.get(statusUrl, {
-          headers: {
-            'x-api-key': this.apiKey
-          },
-          timeout: 10000
-        });
-        
-        console.log('📊 Task status response:', JSON.stringify(response.data, null, 2));
-        
-        const task = response.data;
-        const status = task.status;
-        
-        if (status === 2) { // Status 2 means completed in GeminiGen
-          if (task.generated_image && task.generated_image.length > 0) {
-            const imageUrl = task.generated_image[0].image_url;
-            console.log(`🎉 Task completed in ${attempt} attempts (${Math.floor(totalTime/1000)}s)! Image URL:`, imageUrl);
-            return { imageUrl };
-          } else {
-            throw new Error('Task completed but no generated images found');
-          }
-        } else if (status === 3 || status === 4) { // Error/Failed status
-          throw new Error(`Task failed with status: ${status} - ${task.error_message || 'Unknown error'}`);
-        } else if (status === 0 || status === 1) { // Pending/Processing
-          const statusText = status === 0 ? 'PENDING' : 'PROCESSING';
-          console.log(`⏳ Task status: ${statusText}${attempt < pollingSchedule.length ? ', continuing to next interval...' : ', final attempt reached'}`);
-          
-          // Continue to next attempt if not the last one
-          if (attempt >= pollingSchedule.length) {
-            throw new Error(`Task still ${statusText} after ${Math.floor(totalTime/1000)}s - maximum wait time exceeded`);
-          }
-          continue;
-        } else {
-          console.log(`❓ Unknown status: ${status}${attempt < pollingSchedule.length ? ', continuing...' : ', giving up'}`);
-          if (attempt >= pollingSchedule.length) {
-            throw new Error(`Task has unknown status ${status} after ${Math.floor(totalTime/1000)}s`);
-          }
-          continue;
-        }
-        
-      } catch (error) {
-        if (attempt === pollingSchedule.length) {
-          throw new Error(`Polling failed after ${pollingSchedule.length} attempts (${Math.floor(totalTime/1000)}s total): ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
-        
-        console.log(`⚠️ Polling attempt ${attempt} failed, continuing to next interval:`, error instanceof Error ? error.message : 'Unknown error');
-      }
-    }
-    
-    throw new Error(`Task did not complete within ${Math.floor(totalTime/1000)} seconds (${pollingSchedule.length} attempts)`);
-  }
-
-  /**
-   * Download image from GeminiGen, save locally, and upload to S3
-   */
-  private async downloadAndSaveImage(imageUrl: string, prompt: string): Promise<{ 
-    filename: string; 
-    filepath: string; 
+  private async saveImage(base64DataUrl: string, prompt: string): Promise<{
+    filename: string;
+    filepath: string;
     base64Image: string;
     s3Url?: string;
     s3Key?: string;
   }> {
     try {
-      console.log('📥 Downloading image from GeminiGen...');
+      console.log('💾 Processing image from OpenRouter response...');
 
-      // Download the image
-      const response = await axios.get(imageUrl, {
-        responseType: 'arraybuffer',
-        timeout: 30000
-      });
+      // Parse the base64 data URL to extract raw base64 data
+      // Format: data:image/png;base64,<data> or data:image/jpeg;base64,<data>
+      let base64Data: string;
+      let imageFormat = 'png';
 
-      const imageBuffer = Buffer.from(response.data);
-      
+      if (base64DataUrl.startsWith('data:')) {
+        const matches = base64DataUrl.match(/^data:image\/(\w+);base64,(.+)$/s);
+        if (matches) {
+          imageFormat = matches[1];
+          base64Data = matches[2];
+        } else {
+          // Try splitting on comma as fallback
+          base64Data = base64DataUrl.split(',')[1] || base64DataUrl;
+        }
+      } else {
+        // Assume raw base64 if no data URL prefix
+        base64Data = base64DataUrl;
+      }
+
+      const imageBuffer = Buffer.from(base64Data!, 'base64');
+
       // Create filename
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const promptSlug = prompt
@@ -357,16 +298,17 @@ export class GeminiGenImageService {
         .replace(/[^a-z0-9\s]/g, '')
         .replace(/\s+/g, '-')
         .substring(0, 30);
-      
-      const filename = `geminigen_${timestamp}_${promptSlug}.png`;
+
+      const ext = imageFormat === 'jpeg' || imageFormat === 'jpg' ? 'jpg' : 'png';
+      const filename = `openrouter_${timestamp}_${promptSlug}.${ext}`;
       const filepath = path.join(this.outputDir, filename);
-      
+
       // Save image to file locally
       fs.writeFileSync(filepath, imageBuffer);
-      
-      // Convert to base64 for response
+
+      // Convert to base64 for response (raw base64 without data URL prefix)
       const base64Image = imageBuffer.toString('base64');
-      
+
       console.log('💾 Image saved locally to:', filepath);
       console.log('📊 Image size:', imageBuffer.length, 'bytes');
 
@@ -378,11 +320,12 @@ export class GeminiGenImageService {
         try {
           // Create S3 key with namespace
           s3Key = `images/branding/${filename}`;
-          
+
+          const contentType = ext === 'jpg' ? 'image/jpeg' : 'image/png';
           console.log('☁️  Uploading image to S3...');
-          const s3Result = await uploadImageToS3(s3Key, imageBuffer, 'image/png');
+          const s3Result = await uploadImageToS3(s3Key, imageBuffer, contentType);
           s3Url = s3Result.publicUrl;
-          
+
           console.log('✅ Image uploaded to S3:', s3Url);
         } catch (s3Error) {
           console.error('❌ S3 upload failed, falling back to local storage:', s3Error);
@@ -403,8 +346,8 @@ export class GeminiGenImageService {
       };
 
     } catch (error) {
-      console.error('❌ Error downloading/saving image:', error);
-      throw new Error(`Failed to download image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('❌ Error saving image:', error);
+      throw new Error(`Failed to save image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -414,7 +357,7 @@ export class GeminiGenImageService {
   private async getProductData(productName: string) {
     try {
       console.log('🔍 Searching for product:', productName);
-      
+
       // First try exact match
       const product = await ProductModel.findOne({
         $and: [
@@ -453,7 +396,7 @@ export class GeminiGenImageService {
   }
 
   /**
-   * Get aspect ratio based on platform for GeminiGen API
+   * Get aspect ratio based on platform
    */
   private getAspectRatio(platform: string): string {
     switch (platform.toLowerCase()) {
@@ -473,25 +416,7 @@ export class GeminiGenImageService {
   }
 
   /**
-   * Map frontend styles to GeminiGen artistic styles
-   */
-  private mapStyleToGeminiGen(style: string): string {
-    switch (style.toLowerCase()) {
-      case 'minimalist':
-        return 'Stock Photo'; // Clean, professional, minimal look
-      case 'vibrant':
-        return 'Dynamic'; // Energetic, colorful, dynamic style
-      case 'premium':
-        return 'Portrait'; // Sophisticated, high-quality, premium feel
-      case 'playful':
-        return 'Creative'; // Fun, artistic, playful interpretation
-      default:
-        return 'Photorealistic'; // Default fallback
-    }
-  }
-
-  /**
-   * Check if FreePik service is available
+   * Check if service is available
    */
   public isAvailable(): boolean {
     return !!this.apiKey;
@@ -507,7 +432,7 @@ export class GeminiGenImageService {
       }
 
       const files = fs.readdirSync(this.outputDir)
-        .filter(file => file.startsWith('geminigen_') && (file.endsWith('.jpg') || file.endsWith('.png')))
+        .filter(file => (file.startsWith('openrouter_') || file.startsWith('geminigen_')) && (file.endsWith('.jpg') || file.endsWith('.png')))
         .map(file => {
           const filepath = path.join(this.outputDir, file);
           const stats = fs.statSync(filepath);
@@ -539,7 +464,7 @@ export class GeminiGenImageService {
    */
   public getServiceInfo() {
     return {
-      service: 'GeminiGen AI Image Generation',
+      service: 'OpenRouter Gemini 3 Pro Image Generation',
       apiKeyConfigured: !!this.apiKey,
       outputDirectory: this.outputDir,
       outputDirExists: fs.existsSync(this.outputDir),
@@ -553,7 +478,7 @@ export class GeminiGenImageService {
   private async generateBrandingContent(productData: any, request: ImageBrandingRequest) {
     try {
       console.log('🤖 Generating branding content with AI...');
-      
+
       const toneDescriptions = {
         youth: 'trendy, energetic, fun-loving, social media savvy, modern lifestyle',
         family: 'warm, caring, togetherness, home moments, shared experiences',
@@ -596,7 +521,7 @@ Generate:
 
 Make it:
 - Brand-aligned with Britannia's heritage
-- Tone-appropriate for ${request.tone} audience  
+- Tone-appropriate for ${request.tone} audience
 - Platform-optimized for ${request.platform}
 - Product-focused on exact name "${productData.name}"
 - Company-focused on "Britannia" brand only
@@ -611,7 +536,7 @@ Respond in this JSON format:
 `;
 
       const response = await generateGeminiContent(prompt);
-      
+
       // Parse the JSON response
       let brandingContent;
       try {
@@ -629,7 +554,7 @@ Respond in this JSON format:
 
       console.log('✅ Generated branding content:', brandingContent);
       return brandingContent;
-      
+
     } catch (error) {
       console.error('❌ Error generating branding content:', error);
       return this.getFallbackBrandingContent(productData, request);
@@ -641,7 +566,7 @@ Respond in this JSON format:
    */
   private getFallbackBrandingContent(productData: any, request: ImageBrandingRequest) {
     const productName = productData.name; // Use exact product name
-    
+
     const toneTaglines = {
       youth: `${productName} - Your Vibe!`,
       family: `${productName} - Family Moments`,
@@ -696,45 +621,45 @@ Respond in this JSON format:
 
     // Use the template to build the enhanced prompt
     let basePrompt = IMAGE_BRANDING_PROMPT_TEMPLATE.buildImagePrompt(promptContext);
-    
+
     // Add platform-specific enhancements
     basePrompt += this.addPlatformSpecificPromptEnhancements(context.platform, context.style);
-    
+
     // Add flavor-specific visual elements if flavor is provided
     if (context.flavor) {
       basePrompt += this.addFlavorSpecificPromptEnhancements(context.flavor, context.productName);
     }
-    
+
     // Add final quality and brand consistency requirements
     basePrompt += this.addFinalPromptEnhancements(context.productName, context.tagline);
-    
+
     return basePrompt;
   }
-  
+
   /**
    * Enhance product description with flavor information
    */
   private enhanceProductDescription(description?: string, flavor?: string): string {
     let enhanced = description || 'Premium Britannia biscuit product';
-    
+
     if (flavor) {
       enhanced += ` featuring delicious ${flavor.toLowerCase()} flavor`;
     }
-    
+
     return enhanced;
   }
-  
+
   /**
    * Generate product highlights based on flavor and tone
    */
   private generateProductHighlights(flavor?: string, tone?: string): string[] {
     const highlights = ['Premium quality', 'Trusted Britannia brand'];
-    
+
     if (flavor) {
       highlights.push(`Rich ${flavor.toLowerCase()} taste`);
       highlights.push(`Authentic ${flavor.toLowerCase()} flavor`);
     }
-    
+
     if (tone === 'family') {
       highlights.push('Perfect for sharing', 'Family favorite');
     } else if (tone === 'premium') {
@@ -744,16 +669,16 @@ Respond in this JSON format:
     } else if (tone === 'health') {
       highlights.push('Wholesome goodness', 'Natural ingredients');
     }
-    
+
     return highlights;
   }
-  
+
   /**
    * Add platform-specific prompt enhancements
    */
   private addPlatformSpecificPromptEnhancements(platform: string, style: string): string {
     let enhancement = '\n\n## PLATFORM OPTIMIZATION:\n';
-    
+
     switch (platform.toLowerCase()) {
       case 'instagram':
         enhancement += '- Create scroll-stopping visual appeal for Instagram feed\n';
@@ -774,18 +699,18 @@ Respond in this JSON format:
         enhancement += '- Call-to-action friendly layout\n';
         break;
     }
-    
+
     return enhancement;
   }
-  
+
   /**
    * Add flavor-specific visual enhancements to prompt
    */
   private addFlavorSpecificPromptEnhancements(flavor: string, productName: string): string {
     let enhancement = `\n\n## FLAVOR VISUAL EMPHASIS (${flavor.toUpperCase()}):\n`;
-    
+
     const flavorLower = flavor.toLowerCase();
-    
+
     // Color associations for different flavors
     if (flavorLower.includes('chocolate') || flavorLower.includes('choco')) {
       enhancement += '- Rich brown and golden color palette\n';
@@ -811,13 +736,13 @@ Respond in this JSON format:
       enhancement += `- Colors and elements that evoke ${flavor} characteristics\n`;
       enhancement += `- Visual cues that represent ${flavor} authenticity\n`;
     }
-    
+
     enhancement += `- Prominent display of "${productName}" with ${flavor} flavor emphasis\n`;
     enhancement += `- Visual storytelling that highlights the ${flavor} experience\n`;
-    
+
     return enhancement;
   }
-  
+
   /**
    * Add final prompt enhancements for quality and consistency
    */
@@ -834,4 +759,4 @@ Respond in this JSON format:
   }
 }
 
-export const geminiGenImageService = GeminiGenImageService.getInstance();
+export const openRouterImageService = OpenRouterImageService.getInstance();

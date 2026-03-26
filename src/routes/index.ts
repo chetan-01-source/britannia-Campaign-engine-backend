@@ -48,7 +48,7 @@ router.get('/', (req, res) => {
         generate: "/api/embeddings/generate"
       },
       branding: {
-        generate: "/api/branding/generate - Comprehensive branding with AI caption + Rate-Limited GeminiGen image + MongoDB storage",
+        generate: "/api/branding/generate - Comprehensive branding with AI caption + Rate-Limited OpenRouter image + MongoDB storage",
         list: "/api/branding/list?limit=50",
         byId: "/api/branding/:id"
       },

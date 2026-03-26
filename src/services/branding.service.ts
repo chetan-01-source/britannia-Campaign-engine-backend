@@ -70,8 +70,8 @@ export class BrandingService {
       };
       const brandingContent = await this.generateBranding(brandingRequest);
 
-      // Step 2: Generate branding image using GeminiGen
-      console.log('🖼️ Generating branding image with GeminiGen...');
+      // Step 2: Generate branding image using OpenRouter
+      console.log('🖼️ Generating branding image with OpenRouter...');
       console.log('📋 Branding Service - Input request:', {
         productName: request.productName,
         platform: request.platform,
@@ -131,7 +131,7 @@ export class BrandingService {
           dimensions: this.getDimensionsForPlatform(platform),
           format: imageResult.data.metadata.format,
           generatedAt: new Date(),
-          freepikTaskId: imageResult.data.metadata?.freepikRequestId
+          freepikTaskId: imageResult.data.metadata?.openRouterRequestId
         },
         isActive: true
       });

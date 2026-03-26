@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { rateLimitedImageService } from '../services/rate-limited-image.service';
-import { geminiGenImageService } from '../services/gemini-genai.service'; // For file operations
+import { openRouterImageService } from '../services/openrouter-image.service'; // For file operations
 import { ImageBrandingRequest } from '../types/image-branding.types';
 
 export class ImageBrandingController {
@@ -16,7 +16,7 @@ export class ImageBrandingController {
           success: false,
           error: {
             code: 'SERVICE_UNAVAILABLE',
-            message: 'GeminiGen API service not available. API key not configured.'
+            message: 'OpenRouter API service not available. API key not configured.'
           }
         });
         return;
@@ -86,7 +86,7 @@ export class ImageBrandingController {
         }
       }
 
-      console.log('🎨 GeminiGen image branding request:', {
+      console.log('🎨 OpenRouter image branding request:', {
         productName,
         platform,
         tone,
@@ -102,9 +102,9 @@ export class ImageBrandingController {
         style: style?.toLowerCase() || 'minimalist'
       };
 
-      console.log('🎨 GeminiGen image branding request:', request);
+      console.log('🎨 OpenRouter image branding request:', request);
 
-      // Generate the branding image using GeminiGen AI
+      // Generate the branding image using OpenRouter AI
       console.log('🎨 Image Branding Controller - Making rate-limited generation request...');
       const result = await rateLimitedImageService.generateBrandingImage(request);
       
@@ -116,7 +116,7 @@ export class ImageBrandingController {
         res.status(200).json({
           success: true,
           data: result.data,
-          message: 'Image branding generated successfully using GeminiGen AI'
+          message: 'Image branding generated successfully using OpenRouter AI'
         });
       } else {
         res.status(500).json({
@@ -194,21 +194,21 @@ export class ImageBrandingController {
    */
   public static async getStatus(req: Request, res: Response): Promise<void> {
     try {
-      const isAvailable = geminiGenImageService.isAvailable();
-      const serviceInfo = geminiGenImageService.getServiceInfo();
+      const isAvailable = openRouterImageService.isAvailable();
+      const serviceInfo = openRouterImageService.getServiceInfo();
       
       res.status(200).json({
         success: true,
         data: {
           available: isAvailable,
           service: serviceInfo.service,
-          model: 'GeminiGen Imagen-Pro',
+          model: 'OpenRouter Gemini 3 Pro',
           apiKeyConfigured: serviceInfo.apiKeyConfigured,
           outputDirectory: serviceInfo.outputDirectory,
           totalSavedImages: serviceInfo.totalSavedImages,
           capabilities: [
             'Professional AI image generation',
-            'GeminiGen Imagen-Pro model', 
+            'OpenRouter Gemini 3 Pro model',
             'Platform-specific optimizations',
             'Multi-tone branding support',
             'Commercial-grade image quality'
@@ -253,7 +253,7 @@ export class ImageBrandingController {
         return;
       }
 
-      const filepath = geminiGenImageService.getSavedImagePath(filename);
+      const filepath = openRouterImageService.getSavedImagePath(filename);
       
       if (!filepath) {
         res.status(404).json({
@@ -293,7 +293,7 @@ export class ImageBrandingController {
    */
   public static async listImages(req: Request, res: Response): Promise<void> {
     try {
-      const images = geminiGenImageService.getSavedImages();
+      const images = openRouterImageService.getSavedImages();
       
       res.status(200).json({
         success: true,

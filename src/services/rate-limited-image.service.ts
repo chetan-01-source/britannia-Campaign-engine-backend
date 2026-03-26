@@ -1,5 +1,5 @@
 import { ImageBrandingRequest, ImageBrandingResponse } from '../types/image-branding.types';
-import { GeminiGenImageService } from './gemini-genai.service';
+import { OpenRouterImageService } from './openrouter-image.service';
 
 interface QueuedRequest {
   timestamp: number;
@@ -10,12 +10,12 @@ interface QueuedRequest {
 }
 
 /**
- * Rate-limited wrapper for GeminiGen Image Service
+ * Rate-limited wrapper for OpenRouter Image Service
  * Ensures 5 requests per minute limit is never exceeded
  */
 export class RateLimitedImageService {
   private static instance: RateLimitedImageService;
-  private geminiGenService: GeminiGenImageService;
+  private imageService: OpenRouterImageService;
   
   // Rate limiting properties
   private readonly maxRequestsPerMinute = 5;
@@ -25,7 +25,7 @@ export class RateLimitedImageService {
   private isProcessingQueue = false;
 
   private constructor() {
-    this.geminiGenService = GeminiGenImageService.getInstance();
+    this.imageService = OpenRouterImageService.getInstance();
     console.log('🚦 Rate-limited image service initialized: 5 requests per minute');
   }
 
@@ -48,7 +48,7 @@ export class RateLimitedImageService {
       this.addRequestTimestamp();
       
       try {
-        return await this.geminiGenService.generateBrandingImage(request);
+        return await this.imageService.generateBrandingImage(request);
       } catch (error: any) {
         // Check if it's a rate limit error from the API
         if (this.isRateLimitError(error)) {
@@ -212,7 +212,7 @@ export class RateLimitedImageService {
         console.log(`🚀 Processing queued request (${this.requestTimestamps.length}/5 in current window)`);
         this.logRateLimitStatus();
         
-        const result = await this.geminiGenService.generateBrandingImage(queueItem.requestData);
+        const result = await this.imageService.generateBrandingImage(queueItem.requestData);
         queueItem.resolve(result);
         
         console.log(`✅ Queued request completed successfully`);
@@ -292,7 +292,7 @@ export class RateLimitedImageService {
    * Check if service is available
    */
   public isAvailable(): boolean {
-    return this.geminiGenService.isAvailable();
+    return this.imageService.isAvailable();
   }
 
   /**
