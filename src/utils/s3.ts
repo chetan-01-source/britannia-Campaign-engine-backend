@@ -76,7 +76,6 @@ export const uploadImageToS3 = async (
       Body: imageBuffer,
       ContentType: contentType,
       ServerSideEncryption: 'AES256',
-      ACL: 'public-read', // Make images publicly accessible
       Metadata: {
         'uploaded-by': 'freepik-service',
         'upload-timestamp': new Date().toISOString(),
@@ -87,10 +86,10 @@ export const uploadImageToS3 = async (
     console.log(`🖼️  Uploading image to S3: s3://${params.Bucket}/${keyName}`);
     const result = await s3.upload(params).promise();
     
-    // Generate public URL
-    const publicUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${keyName}`;
-    
-    console.log(`✅ Image uploaded successfully. Public URL: ${publicUrl}`);
+    // Generate permanent public URL via CloudFront
+    const publicUrl = `${process.env.CLOUDFRONT_DOMAIN}/${keyName}`;
+
+    console.log(`✅ Image uploaded successfully. URL: ${publicUrl}`);
     
     return {
       Location: result.Location,
