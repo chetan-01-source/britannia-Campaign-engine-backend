@@ -1,12 +1,15 @@
 import { ImageBrandingRequest, ImageBrandingResponse } from '../types/image-branding.types';
 import { OpenRouterImageService } from './openrouter-image.service';
 
+export type QueueUpdateCallback = (position: number, estimatedWait: number) => void;
+
 interface QueuedRequest {
   timestamp: number;
   resolve: (value: ImageBrandingResponse) => void;
   reject: (error: any) => void;
   requestData: ImageBrandingRequest;
   priority: number;
+  onQueueUpdate?: QueueUpdateCallback;
 }
 
 /**
@@ -39,14 +42,17 @@ export class RateLimitedImageService {
   /**
    * Generate branding image with rate limiting
    */
-  public async generateBrandingImage(request: ImageBrandingRequest): Promise<ImageBrandingResponse> {
+  public async generateBrandingImage(
+    request: ImageBrandingRequest,
+    onQueueUpdate?: QueueUpdateCallback
+  ): Promise<ImageBrandingResponse> {
     console.log('🎨 Rate-limited image generation request for:', request.productName);
-    
+
     if (this.canMakeRequest()) {
       // Can make request immediately
       console.log('✅ Rate limit OK - processing immediately');
       this.addRequestTimestamp();
-      
+
       try {
         return await this.imageService.generateBrandingImage(request);
       } catch (error: any) {
@@ -54,10 +60,10 @@ export class RateLimitedImageService {
         if (this.isRateLimitError(error)) {
           const retryAfter = this.extractRetryAfter(error);
           console.log(`🚦 API rate limit hit! Retry after: ${retryAfter}s`);
-          
+
           // Remove the timestamp we just added since the request failed
           this.requestTimestamps.pop();
-          
+
           // Return user-friendly error for immediate failures
           if (retryAfter > 300) { // More than 5 minutes
             return {
@@ -65,16 +71,16 @@ export class RateLimitedImageService {
               error: `API rate limit exceeded. Please try again in ${Math.floor(retryAfter / 60)} minutes.`
             };
           }
-          
+
           // For shorter waits, queue the request
-          return await this.queueRequest(request);
+          return await this.queueRequest(request, onQueueUpdate);
         }
         throw error;
       }
     } else {
       // Need to queue the request
       console.log('🚦 Rate limit reached - adding to queue');
-      return await this.queueRequest(request);
+      return await this.queueRequest(request, onQueueUpdate);
     }
   }
 
@@ -162,14 +168,15 @@ export class RateLimitedImageService {
   /**
    * Add request to queue and return a promise
    */
-  private async queueRequest(requestData: ImageBrandingRequest): Promise<ImageBrandingResponse> {
+  private async queueRequest(requestData: ImageBrandingRequest, onQueueUpdate?: QueueUpdateCallback): Promise<ImageBrandingResponse> {
     return new Promise((resolve, reject) => {
       this.requestQueue.push({
         timestamp: Date.now(),
         resolve,
         reject,
         requestData,
-        priority: 1 // Normal priority
+        priority: 1, // Normal priority
+        onQueueUpdate
       });
       
       // Sort queue by timestamp (FIFO)
@@ -182,6 +189,20 @@ export class RateLimitedImageService {
       this.processQueue().catch(error => {
         console.error('❌ Queue processing error:', error);
       });
+    });
+  }
+
+  /**
+   * Notify all queued requests about their current position
+   */
+  private notifyQueuePositions(): void {
+    const estimatedPerSlot = (60 / this.maxRequestsPerMinute) * 1000;
+    this.requestQueue.forEach((item, index) => {
+      if (item.onQueueUpdate) {
+        const position = index + 1;
+        const estimatedWait = this.getNextAvailableTime() + index * estimatedPerSlot;
+        item.onQueueUpdate(position, estimatedWait);
+      }
     });
   }
 
@@ -206,6 +227,9 @@ export class RateLimitedImageService {
 
       const queueItem = this.requestQueue.shift();
       if (!queueItem) break;
+
+      // Notify remaining queued requests about their updated positions
+      this.notifyQueuePositions();
 
       try {
         this.addRequestTimestamp();

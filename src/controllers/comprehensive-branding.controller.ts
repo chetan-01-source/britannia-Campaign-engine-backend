@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { brandingService } from '../services/branding.service';
+import { setupSSEResponse, sendSSEEvent, startHeartbeat, cleanupSSE } from '../utils/sse';
+import { SSEEventType, SSEEventData } from '../types/sse.types';
 
 export class ComprehensiveBrandingController {
   /**
@@ -121,6 +123,119 @@ export class ComprehensiveBrandingController {
           message: error instanceof Error ? error.message : 'An unexpected error occurred'
         }
       });
+    }
+  }
+
+  /**
+   * Generate comprehensive branding with SSE streaming progress
+   * POST /api/branding/generate/stream
+   */
+  public static async generateComprehensiveBrandingStream(req: Request, res: Response): Promise<void> {
+    const { productName, tone, platform, flavor, style } = req.body;
+
+    // Validate required fields
+    if (!productName || !tone) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_REQUEST', message: 'Missing required fields: productName and tone are required.' }
+      });
+      return;
+    }
+
+    // Validate tone
+    const validTones = ['youth', 'family', 'premium', 'health', 'traditional', 'professional'];
+    if (!validTones.includes(tone.toLowerCase())) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_TONE', message: `Tone must be one of: ${validTones.join(', ')}` }
+      });
+      return;
+    }
+
+    // Validate platform if provided
+    if (platform) {
+      const validPlatforms = ['instagram', 'linkedin', 'email', 'facebook', 'twitter'];
+      if (!validPlatforms.includes(platform.toLowerCase())) {
+        res.status(400).json({
+          success: false,
+          error: { code: 'INVALID_PLATFORM', message: `Platform must be one of: ${validPlatforms.join(', ')}` }
+        });
+        return;
+      }
+    }
+
+    // Validate style if provided
+    if (style) {
+      const validStyles = ['minimalist', 'vibrant', 'premium', 'playful'];
+      if (!validStyles.includes(style.toLowerCase())) {
+        res.status(400).json({
+          success: false,
+          error: { code: 'INVALID_STYLE', message: `Style must be one of: ${validStyles.join(', ')}` }
+        });
+        return;
+      }
+    }
+
+    // Check if services are available
+    if (!brandingService.isAvailable()) {
+      res.status(503).json({
+        success: false,
+        error: { code: 'SERVICE_UNAVAILABLE', message: 'Branding services not available. Required APIs not configured.' }
+      });
+      return;
+    }
+
+    // Set up SSE response
+    setupSSEResponse(res);
+    const heartbeat = startHeartbeat(res);
+
+    // Track client disconnect via RESPONSE close, not request close.
+    // req.on('close') fires when the POST body is fully consumed (immediately),
+    // res.on('close') fires when the actual TCP connection drops.
+    let aborted = false;
+    res.on('close', () => {
+      if (!res.writableFinished) {
+        // Connection closed before we called res.end() — client disconnected
+        aborted = true;
+        console.log('🔌 Client disconnected from SSE stream');
+        clearInterval(heartbeat);
+      }
+    });
+
+    // Send connected event
+    sendSSEEvent(res, 'connected', {
+      message: 'Stream connected. Starting branding generation...',
+      timestamp: new Date().toISOString()
+    });
+
+    try {
+      await brandingService.generateComprehensiveBrandingStreaming(
+        {
+          productName: productName.trim(),
+          tone: tone.toLowerCase(),
+          platform: platform?.toLowerCase() || 'instagram',
+          flavor: flavor?.trim(),
+          style: style?.toLowerCase() || 'minimalist'
+        },
+        (event: SSEEventType, data: SSEEventData) => {
+          if (!aborted) {
+            sendSSEEvent(res, event, data);
+          }
+        }
+      );
+    } catch (error) {
+      if (!aborted) {
+        sendSSEEvent(res, 'error', {
+          code: 'GENERATION_FAILED',
+          message: error instanceof Error ? error.message : 'An unexpected error occurred'
+        });
+      }
+    } finally {
+      if (!aborted) {
+        // Send a done event so the client knows the stream is finished
+        sendSSEEvent(res, 'done', { message: 'Stream complete', timestamp: new Date().toISOString() });
+        cleanupSSE(res, heartbeat);
+      }
     }
   }
 

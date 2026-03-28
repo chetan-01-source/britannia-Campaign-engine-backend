@@ -4,6 +4,7 @@ import { pineconeService } from './pinecone.service';
 import { rateLimitedImageService } from './rate-limited-image.service';
 import { BrandingRequest, BrandingResponse, ProductContext } from '../types/branding.types';
 import { ImageBrandingRequest } from '../types/image-branding.types';
+import { SSEProgressCallback } from '../types/sse.types';
 import { buildBrandingPrompt, BrandingPromptRequest } from '../templates';
 import { ProcessedChunk } from '../utils/text-preprocessor.utils';
 import { BrandingModel } from '../models/branding.model';
@@ -177,6 +178,172 @@ export class BrandingService {
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
     }
+  }
+
+  /**
+   * Streaming version: generates branding with real-time progress callbacks.
+   * Runs caption + image generation in PARALLEL for faster execution.
+   */
+  public async generateComprehensiveBrandingStreaming(
+    request: {
+      productName: string;
+      tone: string;
+      platform?: string;
+      flavor?: string;
+      style?: string;
+    },
+    onProgress: SSEProgressCallback
+  ): Promise<void> {
+    // Ensure database connection
+    await initializeMongoDB();
+
+    const platform = (request.platform || 'instagram') as 'instagram' | 'linkedin' | 'email';
+    const tone = request.tone as 'youth' | 'professional' | 'family';
+    const style = (request.style || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful';
+
+    onProgress('stage:validation', { stage: 'validation', status: 'complete', progress: 5 });
+
+    const brandingRequest: BrandingRequest = {
+      productName: request.productName,
+      tone: tone,
+      platform: platform,
+      flavor: request.flavor
+    };
+
+    const imageRequest: ImageBrandingRequest = {
+      productName: request.productName.trim(),
+      platform: platform.toLowerCase(),
+      tone: request.tone.toLowerCase(),
+      flavor: request.flavor?.trim(),
+      style: (style?.toLowerCase() || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful'
+    };
+
+    // Run caption and image generation IN PARALLEL (they are independent)
+    const [brandingContent, imageResult] = await Promise.all([
+      // Caption generation
+      (async () => {
+        onProgress('stage:caption', { stage: 'caption', status: 'started', progress: 10 });
+        const result = await this.generateBranding(brandingRequest);
+        onProgress('stage:caption', {
+          stage: 'caption',
+          status: 'complete',
+          progress: 25,
+          data: {
+            caption: result.data.caption,
+            hashtags: result.data.hashtags,
+            cta: result.data.cta
+          }
+        });
+        return result;
+      })(),
+
+      // Image generation (with rate limit queue updates)
+      (async () => {
+        onProgress('stage:rateLimit', { stage: 'rateLimit', status: 'checking', progress: 30 });
+
+        const estimatedWait = rateLimitedImageService.getEstimatedWaitTime();
+        if (estimatedWait > 0) {
+          onProgress('stage:rateLimit', {
+            stage: 'rateLimit',
+            status: 'queued',
+            progress: 30,
+            estimatedWait,
+            queuePosition: rateLimitedImageService.getRateLimitStatus().queueLength + 1
+          });
+        } else {
+          onProgress('stage:rateLimit', { stage: 'rateLimit', status: 'cleared', progress: 35 });
+        }
+
+        onProgress('stage:image', { stage: 'image', status: 'started', progress: 40 });
+
+        const result = await rateLimitedImageService.generateBrandingImage(
+          imageRequest,
+          (position, estWait) => {
+            onProgress('stage:rateLimit', {
+              stage: 'rateLimit',
+              status: 'queued',
+              progress: 30,
+              queuePosition: position,
+              estimatedWait: estWait
+            });
+          }
+        );
+
+        onProgress('stage:image', { stage: 'image', status: 'complete', progress: 70 });
+        return result;
+      })()
+    ]);
+
+    if (!imageResult.success || !imageResult.data) {
+      throw new Error(`Image generation failed: ${imageResult.error}`);
+    }
+
+    // Upload notification (S3 upload already happened inside imageService)
+    onProgress('stage:upload', {
+      stage: 'upload',
+      status: 'complete',
+      progress: 85,
+      data: { imageUrl: imageResult.viewUrl }
+    });
+
+    // Save to MongoDB
+    onProgress('stage:save', { stage: 'save', status: 'started', progress: 90 });
+
+    const brandingDocument = new BrandingModel({
+      productName: request.productName,
+      tone: request.tone,
+      platform: platform,
+      style: style,
+      flavor: request.flavor,
+      generatedCaption: brandingContent.data.caption,
+      generatedTagline: `${request.productName} - ${tone} Appeal`,
+      imageUrl: imageResult.viewUrl || '',
+      localImagePath: imageResult.savedFilename || '',
+      prompt: imageResult.data.imagePrompt,
+      metadata: {
+        dimensions: this.getDimensionsForPlatform(platform),
+        format: imageResult.data.metadata.format,
+        generatedAt: new Date(),
+        freepikTaskId: imageResult.data.metadata?.openRouterRequestId
+      },
+      isActive: true
+    });
+
+    const savedBranding = await brandingDocument.save();
+
+    onProgress('stage:save', { stage: 'save', status: 'complete', progress: 95 });
+
+    // Send complete event with full result
+    onProgress('complete', {
+      progress: 100,
+      data: {
+        _id: savedBranding._id.toString(),
+        productName: savedBranding.productName,
+        tone: savedBranding.tone,
+        platform: savedBranding.platform,
+        style: savedBranding.style,
+        flavor: savedBranding.flavor,
+        caption: savedBranding.generatedCaption,
+        tagline: savedBranding.generatedTagline,
+        imageUrl: savedBranding.imageUrl,
+        localImagePath: savedBranding.localImagePath,
+        prompt: savedBranding.prompt,
+        hashtags: brandingContent.data.hashtags,
+        cta: brandingContent.data.cta,
+        metadata: {
+          dimensions: savedBranding.metadata.dimensions,
+          format: savedBranding.metadata.format,
+          freepikTaskId: savedBranding.metadata.freepikTaskId,
+          contentDetails: {
+            model: 'gemini-2.0-flash',
+            relevantProducts: brandingContent.data.metadata.relevantProducts,
+            wordCount: brandingContent.data.metadata.wordCount,
+            characterCount: brandingContent.data.metadata.characterCount
+          }
+        },
+        createdAt: savedBranding.createdAt
+      }
+    });
   }
 
   /**

@@ -32,6 +32,10 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start:prod": "pm2 start ecosystem.config.js --env production",
+    "stop:prod": "pm2 stop britannia-api",
+    "restart:prod": "pm2 restart britannia-api",
+    "logs:prod": "pm2 logs britannia-api"
   }
 }

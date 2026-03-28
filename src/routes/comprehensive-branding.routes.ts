@@ -11,6 +11,13 @@ const router = Router();
 router.post('/generate', ComprehensiveBrandingController.generateComprehensiveBranding);
 
 /**
+ * @route POST /api/branding/generate/stream
+ * @description Generate branding with SSE streaming progress updates
+ * @body { productName: string, tone: string, platform?: string, flavor?: string, style?: string }
+ */
+router.post('/generate/stream', ComprehensiveBrandingController.generateComprehensiveBrandingStream);
+
+/**
  * @route GET /api/branding/list
  * @description Get all branding entries
  * @query { limit?: number }
