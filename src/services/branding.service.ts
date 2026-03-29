@@ -2,6 +2,8 @@ import { genAI, isGeminiAvailable } from '../config/gemini';
 import { embeddingService } from './embedding.service';
 import { pineconeService } from './pinecone.service';
 import { rateLimitedImageService } from './rate-limited-image.service';
+import { CampaignLogger } from './campaign-logger.service';
+import { CampaignStageName } from '../models/campaign-log.model';
 import { BrandingRequest, BrandingResponse, ProductContext } from '../types/branding.types';
 import { ImageBrandingRequest } from '../types/image-branding.types';
 import { SSEProgressCallback } from '../types/sse.types';
@@ -9,6 +11,7 @@ import { buildBrandingPrompt, BrandingPromptRequest } from '../templates';
 import { ProcessedChunk } from '../utils/text-preprocessor.utils';
 import { BrandingModel } from '../models/branding.model';
 import { initializeMongoDB } from '../config/db';
+import { logger } from '../config/logger';
 
 export class BrandingService {
   private static instance: BrandingService;
@@ -29,7 +32,7 @@ export class BrandingService {
     platform?: string;
     flavor?: string;
     style?: string;
-  }): Promise<{
+  }, correlationId?: string): Promise<{
     success: boolean;
     data?: {
       _id: string;
@@ -50,19 +53,23 @@ export class BrandingService {
     };
     error?: any;
   }> {
-    try {
-      console.log('🎨 Starting comprehensive branding generation for:', request.productName);
+    const platform = (request.platform || 'instagram') as 'instagram' | 'linkedin' | 'email';
+    const tone = request.tone as 'youth' | 'professional' | 'family';
+    const style = (request.style || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful';
 
-      // Ensure database connection
+    const campaign = correlationId
+      ? new CampaignLogger(correlationId, { productName: request.productName, tone: request.tone, platform, style, flavor: request.flavor })
+      : CampaignLogger.create({ productName: request.productName, tone: request.tone, platform, style, flavor: request.flavor });
+
+    try {
       await initializeMongoDB();
 
-      // Set defaults and validate types
-      const platform = (request.platform || 'instagram') as 'instagram' | 'linkedin' | 'email';
-      const tone = request.tone as 'youth' | 'professional' | 'family';
-      const style = (request.style || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful';
+      // Stage: Validation
+      campaign.stageStart('validation');
+      campaign.stageComplete('validation');
 
-      // Step 1: Generate branding content (caption, hashtags, CTA)
-      console.log('📝 Generating branding content...');
+      // Stage: Caption generation
+      campaign.stageStart('caption');
       const brandingRequest: BrandingRequest = {
         productName: request.productName,
         tone: tone,
@@ -70,22 +77,21 @@ export class BrandingService {
         flavor: request.flavor
       };
       const brandingContent = await this.generateBranding(brandingRequest);
+      campaign.stageComplete('caption', {
+        model: 'gemini-2.0-flash',
+        wordCount: brandingContent.data.metadata.wordCount,
+      });
 
-      // Step 2: Generate branding image using OpenRouter
-      console.log('🖼️ Generating branding image with OpenRouter...');
-      console.log('📋 Branding Service - Input request:', {
-        productName: request.productName,
-        platform: request.platform,
-        tone: request.tone,
-        flavor: request.flavor,
-        style: request.style
-      });
-      console.log('📋 Branding Service - Processed values:', {
-        platform: platform,
-        tone: tone,
-        style: style
-      });
-      
+      // Stage: Rate limit + Image generation
+      campaign.stageStart('rateLimit');
+      const estimatedWait = rateLimitedImageService.getEstimatedWaitTime();
+      if (estimatedWait > 0) {
+        campaign.stageComplete('rateLimit', { estimatedWaitMs: estimatedWait, queued: true });
+      } else {
+        campaign.stageComplete('rateLimit', { queued: false });
+      }
+
+      campaign.stageStart('imageGeneration');
       const imageRequest: ImageBrandingRequest = {
         productName: request.productName.trim(),
         platform: platform.toLowerCase(),
@@ -93,30 +99,19 @@ export class BrandingService {
         flavor: request.flavor?.trim(),
         style: (style?.toLowerCase() || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful'
       };
-      
-      console.log('🎨 Image branding request (from branding service):', imageRequest);
-      
-      // Log current rate limit status before making request
-      console.log('📊 Rate limit status before image generation:');
-      rateLimitedImageService.logRateLimitStatus();
-      
-      const estimatedWait = rateLimitedImageService.getEstimatedWaitTime();
-      if (estimatedWait > 0) {
-        console.log(`⏳ Estimated wait time: ${Math.ceil(estimatedWait / 1000)}s`);
-      }
-      
       const imageResult = await rateLimitedImageService.generateBrandingImage(imageRequest);
-      
-      // Log rate limit status after request
-      console.log('📊 Rate limit status after image generation:');
-      rateLimitedImageService.logRateLimitStatus();
 
       if (!imageResult.success || !imageResult.data) {
         throw new Error(`Image generation failed: ${imageResult.error}`);
       }
+      campaign.stageComplete('imageGeneration', { provider: 'openrouter', imageUrl: imageResult.viewUrl });
 
-      // Step 3: Store comprehensive branding data in MongoDB
-      console.log('💾 Storing branding data in MongoDB...');
+      // Stage: S3 upload (already happened inside imageService)
+      campaign.stageStart('s3Upload');
+      campaign.stageComplete('s3Upload', { cdnUrl: imageResult.viewUrl });
+
+      // Stage: MongoDB save
+      campaign.stageStart('mongoSave');
       const brandingDocument = new BrandingModel({
         productName: request.productName,
         tone: request.tone,
@@ -138,7 +133,10 @@ export class BrandingService {
       });
 
       const savedBranding = await brandingDocument.save();
-      console.log('✅ Comprehensive branding saved to MongoDB:', savedBranding._id);
+      campaign.stageComplete('mongoSave', { brandingId: savedBranding._id.toString() });
+
+      // Finalize campaign log
+      await campaign.complete(savedBranding._id.toString());
 
       return {
         success: true,
@@ -154,8 +152,8 @@ export class BrandingService {
           imageUrl: savedBranding.imageUrl,
           localImagePath: savedBranding.localImagePath,
           prompt: savedBranding.prompt,
-          hashtags: brandingContent.data.hashtags, // From branding content
-          cta: brandingContent.data.cta, // From branding content
+          hashtags: brandingContent.data.hashtags,
+          cta: brandingContent.data.cta,
           metadata: {
             dimensions: savedBranding.metadata.dimensions,
             format: savedBranding.metadata.format,
@@ -172,7 +170,13 @@ export class BrandingService {
       };
 
     } catch (error) {
-      console.error('❌ Comprehensive branding generation failed:', error);
+      // Record the failing stage if not already captured
+      const failedStageName = this.inferFailedStage(error);
+      if (failedStageName) {
+        campaign.stageFailed(failedStageName, error, this.inferErrorCode(error));
+      }
+      await campaign.fail(error);
+
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -192,158 +196,190 @@ export class BrandingService {
       flavor?: string;
       style?: string;
     },
-    onProgress: SSEProgressCallback
+    onProgress: SSEProgressCallback,
+    correlationId?: string
   ): Promise<void> {
-    // Ensure database connection
-    await initializeMongoDB();
-
     const platform = (request.platform || 'instagram') as 'instagram' | 'linkedin' | 'email';
     const tone = request.tone as 'youth' | 'professional' | 'family';
     const style = (request.style || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful';
 
-    onProgress('stage:validation', { stage: 'validation', status: 'complete', progress: 5 });
+    const campaign = correlationId
+      ? new CampaignLogger(correlationId, { productName: request.productName, tone: request.tone, platform, style, flavor: request.flavor })
+      : CampaignLogger.create({ productName: request.productName, tone: request.tone, platform, style, flavor: request.flavor });
 
-    const brandingRequest: BrandingRequest = {
-      productName: request.productName,
-      tone: tone,
-      platform: platform,
-      flavor: request.flavor
-    };
+    try {
+      await initializeMongoDB();
 
-    const imageRequest: ImageBrandingRequest = {
-      productName: request.productName.trim(),
-      platform: platform.toLowerCase(),
-      tone: request.tone.toLowerCase(),
-      flavor: request.flavor?.trim(),
-      style: (style?.toLowerCase() || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful'
-    };
+      campaign.stageStart('validation');
+      campaign.stageComplete('validation');
+      onProgress('stage:validation', { stage: 'validation', status: 'complete', progress: 5 });
 
-    // Run caption and image generation IN PARALLEL (they are independent)
-    const [brandingContent, imageResult] = await Promise.all([
-      // Caption generation
-      (async () => {
-        onProgress('stage:caption', { stage: 'caption', status: 'started', progress: 10 });
-        const result = await this.generateBranding(brandingRequest);
-        onProgress('stage:caption', {
-          stage: 'caption',
-          status: 'complete',
-          progress: 25,
-          data: {
-            caption: result.data.caption,
-            hashtags: result.data.hashtags,
-            cta: result.data.cta
-          }
-        });
-        return result;
-      })(),
+      const brandingRequest: BrandingRequest = {
+        productName: request.productName,
+        tone: tone,
+        platform: platform,
+        flavor: request.flavor
+      };
 
-      // Image generation (with rate limit queue updates)
-      (async () => {
-        onProgress('stage:rateLimit', { stage: 'rateLimit', status: 'checking', progress: 30 });
+      const imageRequest: ImageBrandingRequest = {
+        productName: request.productName.trim(),
+        platform: platform.toLowerCase(),
+        tone: request.tone.toLowerCase(),
+        flavor: request.flavor?.trim(),
+        style: (style?.toLowerCase() || 'minimalist') as 'minimalist' | 'vibrant' | 'premium' | 'playful'
+      };
 
-        const estimatedWait = rateLimitedImageService.getEstimatedWaitTime();
-        if (estimatedWait > 0) {
-          onProgress('stage:rateLimit', {
-            stage: 'rateLimit',
-            status: 'queued',
-            progress: 30,
-            estimatedWait,
-            queuePosition: rateLimitedImageService.getRateLimitStatus().queueLength + 1
+      // Run caption and image generation IN PARALLEL (they are independent)
+      const [brandingContent, imageResult] = await Promise.all([
+        // Caption generation
+        (async () => {
+          campaign.stageStart('caption');
+          onProgress('stage:caption', { stage: 'caption', status: 'started', progress: 10 });
+          const result = await this.generateBranding(brandingRequest);
+          campaign.stageComplete('caption', {
+            model: 'gemini-2.0-flash',
+            wordCount: result.data.metadata.wordCount,
           });
-        } else {
-          onProgress('stage:rateLimit', { stage: 'rateLimit', status: 'cleared', progress: 35 });
-        }
+          onProgress('stage:caption', {
+            stage: 'caption',
+            status: 'complete',
+            progress: 25,
+            data: {
+              caption: result.data.caption,
+              hashtags: result.data.hashtags,
+              cta: result.data.cta
+            }
+          });
+          return result;
+        })(),
 
-        onProgress('stage:image', { stage: 'image', status: 'started', progress: 40 });
+        // Image generation (with rate limit queue updates)
+        (async () => {
+          campaign.stageStart('rateLimit');
+          onProgress('stage:rateLimit', { stage: 'rateLimit', status: 'checking', progress: 30 });
 
-        const result = await rateLimitedImageService.generateBrandingImage(
-          imageRequest,
-          (position, estWait) => {
+          const estimatedWait = rateLimitedImageService.getEstimatedWaitTime();
+          if (estimatedWait > 0) {
+            campaign.stageComplete('rateLimit', { estimatedWaitMs: estimatedWait, queued: true });
             onProgress('stage:rateLimit', {
               stage: 'rateLimit',
               status: 'queued',
               progress: 30,
-              queuePosition: position,
-              estimatedWait: estWait
+              estimatedWait,
+              queuePosition: rateLimitedImageService.getRateLimitStatus().queueLength + 1
             });
+          } else {
+            campaign.stageComplete('rateLimit', { queued: false });
+            onProgress('stage:rateLimit', { stage: 'rateLimit', status: 'cleared', progress: 35 });
           }
-        );
 
-        onProgress('stage:image', { stage: 'image', status: 'complete', progress: 70 });
-        return result;
-      })()
-    ]);
+          campaign.stageStart('imageGeneration');
+          onProgress('stage:image', { stage: 'image', status: 'started', progress: 40 });
 
-    if (!imageResult.success || !imageResult.data) {
-      throw new Error(`Image generation failed: ${imageResult.error}`);
-    }
+          const result = await rateLimitedImageService.generateBrandingImage(
+            imageRequest,
+            (position, estWait) => {
+              onProgress('stage:rateLimit', {
+                stage: 'rateLimit',
+                status: 'queued',
+                progress: 30,
+                queuePosition: position,
+                estimatedWait: estWait
+              });
+            }
+          );
 
-    // Upload notification (S3 upload already happened inside imageService)
-    onProgress('stage:upload', {
-      stage: 'upload',
-      status: 'complete',
-      progress: 85,
-      data: { imageUrl: imageResult.viewUrl }
-    });
+          campaign.stageComplete('imageGeneration', { provider: 'openrouter' });
+          onProgress('stage:image', { stage: 'image', status: 'complete', progress: 70 });
+          return result;
+        })()
+      ]);
 
-    // Save to MongoDB
-    onProgress('stage:save', { stage: 'save', status: 'started', progress: 90 });
-
-    const brandingDocument = new BrandingModel({
-      productName: request.productName,
-      tone: request.tone,
-      platform: platform,
-      style: style,
-      flavor: request.flavor,
-      generatedCaption: brandingContent.data.caption,
-      generatedTagline: `${request.productName} - ${tone} Appeal`,
-      imageUrl: imageResult.viewUrl || '',
-      localImagePath: imageResult.savedFilename || '',
-      prompt: imageResult.data.imagePrompt,
-      metadata: {
-        dimensions: this.getDimensionsForPlatform(platform),
-        format: imageResult.data.metadata.format,
-        generatedAt: new Date(),
-        freepikTaskId: imageResult.data.metadata?.openRouterRequestId
-      },
-      isActive: true
-    });
-
-    const savedBranding = await brandingDocument.save();
-
-    onProgress('stage:save', { stage: 'save', status: 'complete', progress: 95 });
-
-    // Send complete event with full result
-    onProgress('complete', {
-      progress: 100,
-      data: {
-        _id: savedBranding._id.toString(),
-        productName: savedBranding.productName,
-        tone: savedBranding.tone,
-        platform: savedBranding.platform,
-        style: savedBranding.style,
-        flavor: savedBranding.flavor,
-        caption: savedBranding.generatedCaption,
-        tagline: savedBranding.generatedTagline,
-        imageUrl: savedBranding.imageUrl,
-        localImagePath: savedBranding.localImagePath,
-        prompt: savedBranding.prompt,
-        hashtags: brandingContent.data.hashtags,
-        cta: brandingContent.data.cta,
-        metadata: {
-          dimensions: savedBranding.metadata.dimensions,
-          format: savedBranding.metadata.format,
-          freepikTaskId: savedBranding.metadata.freepikTaskId,
-          contentDetails: {
-            model: 'gemini-2.0-flash',
-            relevantProducts: brandingContent.data.metadata.relevantProducts,
-            wordCount: brandingContent.data.metadata.wordCount,
-            characterCount: brandingContent.data.metadata.characterCount
-          }
-        },
-        createdAt: savedBranding.createdAt
+      if (!imageResult.success || !imageResult.data) {
+        throw new Error(`Image generation failed: ${imageResult.error}`);
       }
-    });
+
+      // Upload notification (S3 upload already happened inside imageService)
+      campaign.stageStart('s3Upload');
+      campaign.stageComplete('s3Upload', { cdnUrl: imageResult.viewUrl });
+      onProgress('stage:upload', {
+        stage: 'upload',
+        status: 'complete',
+        progress: 85,
+        data: { imageUrl: imageResult.viewUrl }
+      });
+
+      // Save to MongoDB
+      campaign.stageStart('mongoSave');
+      onProgress('stage:save', { stage: 'save', status: 'started', progress: 90 });
+
+      const brandingDocument = new BrandingModel({
+        productName: request.productName,
+        tone: request.tone,
+        platform: platform,
+        style: style,
+        flavor: request.flavor,
+        generatedCaption: brandingContent.data.caption,
+        generatedTagline: `${request.productName} - ${tone} Appeal`,
+        imageUrl: imageResult.viewUrl || '',
+        localImagePath: imageResult.savedFilename || '',
+        prompt: imageResult.data.imagePrompt,
+        metadata: {
+          dimensions: this.getDimensionsForPlatform(platform),
+          format: imageResult.data.metadata.format,
+          generatedAt: new Date(),
+          freepikTaskId: imageResult.data.metadata?.openRouterRequestId
+        },
+        isActive: true
+      });
+
+      const savedBranding = await brandingDocument.save();
+      campaign.stageComplete('mongoSave', { brandingId: savedBranding._id.toString() });
+      onProgress('stage:save', { stage: 'save', status: 'complete', progress: 95 });
+
+      // Finalize campaign log
+      await campaign.complete(savedBranding._id.toString());
+
+      // Send complete event with full result
+      onProgress('complete', {
+        progress: 100,
+        data: {
+          correlationId: campaign.correlationId,
+          _id: savedBranding._id.toString(),
+          productName: savedBranding.productName,
+          tone: savedBranding.tone,
+          platform: savedBranding.platform,
+          style: savedBranding.style,
+          flavor: savedBranding.flavor,
+          caption: savedBranding.generatedCaption,
+          tagline: savedBranding.generatedTagline,
+          imageUrl: savedBranding.imageUrl,
+          localImagePath: savedBranding.localImagePath,
+          prompt: savedBranding.prompt,
+          hashtags: brandingContent.data.hashtags,
+          cta: brandingContent.data.cta,
+          metadata: {
+            dimensions: savedBranding.metadata.dimensions,
+            format: savedBranding.metadata.format,
+            freepikTaskId: savedBranding.metadata.freepikTaskId,
+            contentDetails: {
+              model: 'gemini-2.0-flash',
+              relevantProducts: brandingContent.data.metadata.relevantProducts,
+              wordCount: brandingContent.data.metadata.wordCount,
+              characterCount: brandingContent.data.metadata.characterCount
+            }
+          },
+          createdAt: savedBranding.createdAt
+        }
+      });
+    } catch (error) {
+      const failedStageName = this.inferFailedStage(error);
+      if (failedStageName) {
+        campaign.stageFailed(failedStageName, error, this.inferErrorCode(error));
+      }
+      await campaign.fail(error);
+      throw error; // Re-throw so the controller can send SSE error event
+    }
   }
 
   /**
@@ -351,12 +387,9 @@ export class BrandingService {
    */
   public async generateBranding(request: BrandingRequest): Promise<BrandingResponse> {
     try {
-      console.log('🎨 Starting branding generation for:', request.productName);
+      logger.info({ productName: request.productName }, 'Starting branding content generation');
 
-      // Step 1: Get product context from Pinecone
       const productContext = await this.getProductContext(request.productName);
-      
-      // Step 2: Generate branding content using Gemini with templates
       const brandingContent = await this.generateContent(request, productContext);
 
       return {
@@ -379,7 +412,7 @@ export class BrandingService {
       };
 
     } catch (error) {
-      console.error('❌ Branding generation failed:', error);
+      logger.error({ err: error, productName: request.productName }, 'Branding content generation failed');
       throw error;
     }
   }
@@ -390,12 +423,11 @@ export class BrandingService {
   private async getProductContext(productName: string): Promise<ProductContext[]> {
     try {
       if (!embeddingService.isAvailable() || !pineconeService.isAvailable()) {
-        console.warn('⚠️  Embeddings or Pinecone not available, returning empty context');
+        logger.warn('Embeddings or Pinecone not available, returning empty context');
         return [];
       }
 
-      // Generate embedding for the product name
-      console.log('🔍 Generating embedding for product search...');
+      logger.debug({ productName }, 'Generating embedding for product search');
       const productChunk: ProcessedChunk = {
         id: 'search-' + Date.now(),
         text: productName,
@@ -409,17 +441,15 @@ export class BrandingService {
       };
       const embeddings = await embeddingService.generateEmbeddings([productChunk]);
       const searchEmbedding = embeddings[0];
-      
-      // Search similar products in Pinecone
-      console.log('📌 Searching similar products in Pinecone...');
+
+      logger.debug('Searching similar products in Pinecone');
       const searchResult = await pineconeService.searchSimilar(searchEmbedding.embedding, 5);
-      
+
       if (!searchResult.success) {
-        console.warn('⚠️  Pinecone search failed, returning empty context');
+        logger.warn('Pinecone search failed, returning empty context');
         return [];
       }
 
-      // Convert to product context
       const productContext: ProductContext[] = searchResult.matches.map(match => ({
         name: match.metadata?.productName || 'Unknown Product',
         description: match.metadata?.description || undefined,
@@ -428,11 +458,11 @@ export class BrandingService {
         similarity: match.score
       }));
 
-      console.log(`✅ Found ${productContext.length} similar products`);
+      logger.info({ count: productContext.length }, 'Found similar products');
       return productContext;
 
     } catch (error) {
-      console.error('❌ Error getting product context:', error);
+      logger.error({ err: error }, 'Error getting product context');
       return [];
     }
   }
@@ -459,7 +489,7 @@ export class BrandingService {
 
     const { systemPrompt, userPrompt } = buildBrandingPrompt(promptRequest);
     
-    console.log('🤖 Generating content with Gemini using template system...');
+    logger.info('Generating content with Gemini');
     
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
@@ -473,7 +503,7 @@ export class BrandingService {
         result = await model.generateContent(prompt);
         break;
       } catch (error: any) {
-        console.log(`⚠️ Attempt failed, retries left: ${retries - 1}`, error.message);
+        logger.warn({ retriesLeft: retries - 1, err: error.message }, 'Gemini attempt failed, retrying');
         retries--;
         if (retries === 0) throw error;
         // Wait before retry
@@ -647,7 +677,7 @@ export class BrandingService {
         }
       };
     } catch (error) {
-      console.error('❌ Error fetching brandings:', error);
+      logger.error({ err: error }, 'Error fetching brandings');
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -679,7 +709,7 @@ export class BrandingService {
         data: branding
       };
     } catch (error) {
-      console.error('❌ Error fetching branding:', error);
+      logger.error({ err: error }, 'Error fetching branding by ID');
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -719,6 +749,31 @@ export class BrandingService {
    */
   public getRateLimitStatus() {
     return rateLimitedImageService.getRateLimitStatus();
+  }
+
+  /** Infer which stage failed based on error message patterns */
+  private inferFailedStage(error: unknown): CampaignStageName | null {
+    const msg = error instanceof Error ? error.message.toLowerCase() : '';
+    if (msg.includes('image generation') || msg.includes('openrouter')) return 'imageGeneration';
+    if (msg.includes('gemini') || msg.includes('no content generated')) return 'caption';
+    if (msg.includes('s3') || msg.includes('upload')) return 's3Upload';
+    if (msg.includes('mongo') || msg.includes('save')) return 'mongoSave';
+    if (msg.includes('pinecone') || msg.includes('embedding')) return 'caption';
+    return null;
+  }
+
+  /** Map error to a standardized error code */
+  private inferErrorCode(error: unknown): string {
+    const msg = error instanceof Error ? error.message.toLowerCase() : '';
+    if (msg.includes('429') || msg.includes('rate limit')) return 'OPENROUTER_429';
+    if (msg.includes('timeout') && msg.includes('openrouter')) return 'OPENROUTER_TIMEOUT';
+    if (msg.includes('openrouter')) return 'OPENROUTER_ERROR';
+    if (msg.includes('timeout') && msg.includes('gemini')) return 'GEMINI_TIMEOUT';
+    if (msg.includes('gemini') || msg.includes('no content generated')) return 'GEMINI_ERROR';
+    if (msg.includes('s3') || msg.includes('upload')) return 'S3_UPLOAD_FAILED';
+    if (msg.includes('mongo') || msg.includes('save')) return 'MONGO_SAVE_FAILED';
+    if (msg.includes('pinecone')) return 'PINECONE_SEARCH_FAILED';
+    return 'UNKNOWN_ERROR';
   }
 }
 

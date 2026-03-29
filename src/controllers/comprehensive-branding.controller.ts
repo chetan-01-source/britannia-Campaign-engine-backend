@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import { brandingService } from '../services/branding.service';
 import { setupSSEResponse, sendSSEEvent, startHeartbeat, cleanupSSE } from '../utils/sse';
 import { SSEEventType, SSEEventData } from '../types/sse.types';
+import { logger } from '../config/logger';
 
 export class ComprehensiveBrandingController {
   /**
@@ -9,7 +11,8 @@ export class ComprehensiveBrandingController {
    * POST /api/branding/generate
    */
   public static async generateComprehensiveBranding(req: Request, res: Response): Promise<void> {
-    console.log('🚨 DEBUG: Request received at controller!', req.method, req.url, req.body);
+    const correlationId = uuidv4();
+    logger.info({ correlationId, method: req.method, url: req.url }, 'Branding generation request received');
     try {
       const { productName, tone, platform, flavor, style } = req.body;
 
@@ -80,13 +83,7 @@ export class ComprehensiveBrandingController {
         return;
       }
 
-      console.log('🎨 Comprehensive branding request:', {
-        productName,
-        tone,
-        platform: platform || 'instagram',
-        flavor,
-        style: style || 'minimalist'
-      });
+      logger.info({ correlationId, productName, tone, platform: platform || 'instagram', style: style || 'minimalist' }, 'Starting branding generation');
 
       // Generate comprehensive branding content
       const result = await brandingService.generateComprehensiveBranding({
@@ -95,7 +92,7 @@ export class ComprehensiveBrandingController {
         platform: platform?.toLowerCase() || 'instagram',
         flavor: flavor?.trim(),
         style: style?.toLowerCase() || 'minimalist'
-      });
+      }, correlationId);
 
       if (result.success && result.data) {
         res.status(200).json({
@@ -115,7 +112,7 @@ export class ComprehensiveBrandingController {
       }
 
     } catch (error) {
-      console.error('❌ Comprehensive branding generation error:', error);
+      logger.error({ correlationId, err: error }, 'Comprehensive branding generation error');
       res.status(500).json({
         success: false,
         error: {
@@ -131,6 +128,7 @@ export class ComprehensiveBrandingController {
    * POST /api/branding/generate/stream
    */
   public static async generateComprehensiveBrandingStream(req: Request, res: Response): Promise<void> {
+    const correlationId = uuidv4();
     const { productName, tone, platform, flavor, style } = req.body;
 
     // Validate required fields
@@ -197,13 +195,14 @@ export class ComprehensiveBrandingController {
       if (!res.writableFinished) {
         // Connection closed before we called res.end() — client disconnected
         aborted = true;
-        console.log('🔌 Client disconnected from SSE stream');
+        logger.warn({ correlationId }, 'Client disconnected from SSE stream');
         clearInterval(heartbeat);
       }
     });
 
     // Send connected event
     sendSSEEvent(res, 'connected', {
+      correlationId,
       message: 'Stream connected. Starting branding generation...',
       timestamp: new Date().toISOString()
     });
@@ -221,7 +220,8 @@ export class ComprehensiveBrandingController {
           if (!aborted) {
             sendSSEEvent(res, event, data);
           }
-        }
+        },
+        correlationId
       );
     } catch (error) {
       if (!aborted) {
@@ -299,7 +299,7 @@ export class ComprehensiveBrandingController {
       }
 
     } catch (error) {
-      console.error('❌ Error fetching brandings:', error);
+      logger.error({ err: error }, 'Error fetching brandings');
       res.status(500).json({
         success: false,
         error: {
@@ -356,7 +356,7 @@ export class ComprehensiveBrandingController {
       }
 
     } catch (error) {
-      console.error('❌ Error fetching branding by ID:', error);
+      logger.error({ err: error }, 'Error fetching branding by ID');
       res.status(500).json({
         success: false,
         error: {
